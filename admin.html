@@ -19,6 +19,8 @@
   .search-input { flex: 1; min-width: 150px; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 6px; font-size: 14px; }
   .search-input:focus { outline: none; border-color: var(--gold); }
   .win-badge { background: rgba(104, 211, 145, 0.2); color: #68d391; font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+  .badge-green { background: #2f855a; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .badge-red { background: #c53030; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -176,6 +178,7 @@
   <div class="grid-2">
     <div class="card card-gold">
       <div class="card-title">Open Today's Number</div>
+      <p style="font-size:12px; margin-bottom:10px;">Note: Admin can see this instantly. Public & Agents will ONLY see this after 6:00 PM IST.</p>
       <div class="form-group">
         <label class="form-label">Number (00-99)</label>
         <input type="number" id="open-num" class="form-input" min="0" max="99" placeholder="45"/>
@@ -185,8 +188,7 @@
         <input type="time" id="open-time" class="form-input"/>
       </div>
       <div style="display:flex;gap:8px;margin-top:16px;">
-        <button class="btn btn-gold btn-full" onclick="openNumber()">✅ Open Number</button>
-        <button class="btn btn-red" onclick="closeNumber()">🔒 Close (Fake)</button>
+        <button class="btn btn-gold btn-full" onclick="openNumber()">✅ Save Number</button>
       </div>
     </div>
 
@@ -246,12 +248,12 @@
   </div>
   <div class="card" style="margin-bottom:16px;">
     <div class="search-bar">
-      <input type="text" id="bet-search-agent" class="search-input" placeholder="Agent Name..." oninput="filterBets()"/>
-      <input type="text" id="bet-search-customer" class="search-input" placeholder="Customer Name..." oninput="filterBets()"/>
-      <input type="number" id="bet-search-num" class="search-input" placeholder="Number (0-99)..." min="0" max="99" oninput="filterBets()"/>
+      <input type="text" id="bet-search-agent" class="search-input" placeholder="Search Agent Name..." oninput="filterBets()"/>
+      <input type="text" id="bet-search-customer" class="search-input" placeholder="Search Customer Name..." oninput="filterBets()"/>
+      <input type="number" id="bet-search-num" class="search-input" placeholder="Number / Harup..." min="0" max="99" oninput="filterBets()"/>
       <input type="text" id="bet-search-date" class="search-input" placeholder="Date (DD-MM-YYYY)" oninput="filterBets()"/>
       <select id="bet-search-type" class="search-input" onchange="filterBets()">
-        <option value="">All Bets</option>
+        <option value="">All Bets (Num & Harup)</option>
         <option value="number">Only Numbers</option>
         <option value="harup">Only Harups</option>
       </select>
@@ -261,7 +263,7 @@
     <div id="bets-loading" class="loading"><div class="spinner"></div>Loading bets...</div>
     <div style="overflow-x:auto;">
       <table class="history-table" id="bets-table" style="display:none; width:100%;">
-        <thead><tr><th>Agent</th><th>Customer</th><th>Bet On</th><th>Amount</th><th>Win (If Pass)</th><th>Commission</th><th>Date & Time</th></tr></thead>
+        <thead><tr><th>Agent</th><th>Customer</th><th>Bet On</th><th>Play Amt</th><th>Win (If Pass)</th><th>Commission</th><th>Date & Time</th></tr></thead>
         <tbody id="bets-body"></tbody>
       </table>
     </div>
@@ -339,6 +341,7 @@
           <label class="form-label">Global Commission % (For Agents)</label>
           <input type="number" id="commission-rate" class="form-input" min="1" max="50" value="10"/>
         </div>
+        <button class="btn btn-gold btn-sm" onclick="saveSettings()">Save Commission</button>
       </div>
       
       <div class="card">
@@ -616,6 +619,23 @@ function loadDashboard() {
         document.getElementById('dash-countdown').textContent = '--:--:--';
       }
     });
+
+    // Master Countdown for 6 PM (Admin Panel specific)
+    setInterval(() => {
+        const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        const target = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+        target.setHours(18, 0, 0, 0); 
+        
+        let diff = target - now;
+        if (diff > 0) {
+            const h = Math.floor((diff / 3600000) % 24);
+            const m = Math.floor((diff / 60000) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            document.getElementById('dash-countdown').textContent = `${h}h ${m}m ${s}s`;
+        } else {
+            document.getElementById('dash-countdown').textContent = "Opened to Public";
+        }
+    }, 1000);
 }
 
 function startCountdown(dateStr, timeStr) {
@@ -626,14 +646,9 @@ function startCountdown(dateStr, timeStr) {
     const now = new Date();
     const diff = target - now;
     if(diff <= 0) {
-      document.getElementById('dash-countdown').textContent = '00:00:00';
       clearInterval(countdownInterval);
       return;
     }
-    const h = String(Math.floor(diff/3600000)).padStart(2,'0');
-    const m = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
-    const s = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
-    document.getElementById('dash-countdown').textContent = `${h}:${m}:${s}`;
   }, 1000);
 }
 
@@ -672,7 +687,7 @@ function renderAgents(list) {
         </div>
         <span class="badge ${a.status==='active'?'badge-green':'badge-red'}">${a.status||'active'}</span>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">${a.address||'No address'}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Pwd: <strong>${a.password||'--'}</strong> <br> ${a.address||'No address'}</div>
       <div class="agent-card-actions">
         <button class="btn btn-gold btn-sm" onclick="editAgent('${a.id}')">✏️ Edit</button>
         <button class="btn btn-blue btn-sm" onclick="toggleBlock('${a.id}','${a.status}')">${a.status==='blocked'?'🔓 Unblock':'🔒 Block'}</button>
@@ -757,12 +772,10 @@ async function openNumber() {
       time: time,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
-    showToast(`Number ${String(num).padStart(2,'0')} opened!`,'success');
+    showToast(`Number ${String(num).padStart(2,'0')} saved! Visible to users at 6 PM.`,'success');
     document.getElementById('open-num').value = '';
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
-
-async function closeNumber() { showToast('Number closed feature is just a placeholder','info'); }
 
 function loadResultsRealtime() {
   db.collection('results').orderBy('timestamp','desc').limit(60)
@@ -788,8 +801,8 @@ function renderResultsTable() {
       <td>${r.numberWord||getWord(r.number)}</td>
       <td>${r.time||'--'}</td>
       <td>
-        <button class="btn btn-gold btn-sm" onclick="openEditResult('${r.id}')">✏️</button>
-        <button class="btn btn-red btn-sm" onclick="deleteResult('${r.id}')">🗑</button>
+        <button class="btn btn-gold btn-sm" onclick="openEditResult('${r.id}')">✏️ Edit</button>
+        <button class="btn btn-red btn-sm" onclick="deleteResult('${r.id}')">🗑 Delete</button>
       </td>
     </tr>
   `).join('');
@@ -834,7 +847,7 @@ async function saveEditResult() {
 }
 
 async function deleteResult(id) {
-  if(!confirm('Delete this result?'))return;
+  if(!confirm('Delete this result permanently?'))return;
   try{await db.collection('results').doc(id).delete();showToast('Deleted','success');}
   catch(e){showToast('Error: '+e.message,'error');}
 }
@@ -856,7 +869,7 @@ async function scheduleNumber() {
       number:num, date:dateStr, time, status:'pending',
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
-    showToast('Scheduled!','success');
+    showToast('Scheduled successfully!','success');
     setupScheduleChecker();
   } catch(e){showToast('Error: '+e.message,'error');}
 }
@@ -866,7 +879,7 @@ function loadSchedules() {
     .onSnapshot(snap => {
       const el = document.getElementById('schedule-list');
       if(!el) return;
-      if(snap.empty){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-text">No schedules</div></div>';return;}
+      if(snap.empty){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-text">No pending schedules</div></div>';return;}
       el.innerHTML = snap.docs.map(doc=>{
         const s=doc.data();
         return `<div class="bet-summary-row">
@@ -898,11 +911,11 @@ function setupScheduleChecker() {
         showToast(`Auto-opened: ${s.number}`,'success');
       }
     });
-  }, 30000);
+  }, 30000); // check every 30 seconds
 }
 
 async function deleteSchedule(id) {
-  if(!confirm('Delete schedule?'))return;
+  if(!confirm('Delete this schedule?'))return;
   await db.collection('schedule').doc(id).delete();
   showToast('Schedule deleted','success');
 }
@@ -912,7 +925,7 @@ async function deleteSchedule(id) {
 // =====================================================
 function loadBetsRealtime() {
   if(unsubBets) unsubBets();
-  unsubBets = db.collection('bets').orderBy('timestamp','desc').limit(1000)
+  unsubBets = db.collection('bets').orderBy('timestamp','desc').limit(1500)
     .onSnapshot(snap => {
       allBets = snap.docs.map(d=>({id:d.id,...d.data()}));
       
@@ -969,7 +982,7 @@ function renderBetsTable() {
       <td style="font-size:12px;">${b.agentName||'--'}<br><span style="color:#888;">${b.agentMobile||''}</span></td>
       <td style="color:var(--gold); font-weight:bold;">${b.customerName||'Guest'}</td>
       <td>
-        ${b.type === 'number' 
+        ${b.type === 'number' || b.harup === null
            ? `<span class="number-badge" style="background:#d4af37;">Num: ${String(b.number||0).padStart(2,'0')}</span>` 
            : `<span class="harup-badge" style="background:#2b6cb0;">Harup: ${b.harup}</span>`}
       </td>
@@ -1128,21 +1141,17 @@ function renderHarupSettings() {
     <div class="settings-item">
       <label>Harup ${i+1}</label>
       <input type="number" id="harup-${i+1}" class="form-input" style="text-align:center;" 
-        value="${currentSettings['harup'+(i+1)]||[10,20,50,100,200,300,500,700,1000][i]}" min="1"/>
+        value="${currentSettings['harup'+(i+1)]||[10,20,50,100,200,300,500,700,1000][i]}" min="1" disabled/>
     </div>
   `).join('');
 }
 
 async function saveSettings() {
   const data = {commissionRate: parseInt(document.getElementById('commission-rate').value)||10};
-  for(let i=1;i<=9;i++){
-    const el = document.getElementById('harup-'+i);
-    if(el) data['harup'+i] = parseInt(el.value)||0;
-  }
   try {
     await db.collection('settings').doc('main').set(data, {merge:true});
     currentSettings = data;
-    showToast('Agent Settings saved!','success');
+    showToast('Global Commission Saved!','success');
   } catch(e){showToast('Error: '+e.message,'error');}
 }
 
