@@ -1,11 +1,10 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>UP Darbar - Admin Panel</title>
+<title>UP Darbar - Super Admin Panel</title>
 <link rel="stylesheet" href="style.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -18,6 +17,12 @@
   .search-input { flex: 1; min-width: 150px; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 6px; font-size: 14px; }
   .search-input:focus { outline: none; border-color: var(--gold); }
   .win-badge { background: rgba(104, 211, 145, 0.2); color: #68d391; font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+  .badge-green { background: #2f855a; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .badge-red { background: #c53030; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .agent-card { background: var(--bg-secondary); border: 1px solid var(--border); padding: 15px; border-radius: 8px; }
+  .agent-card-name { font-weight: bold; font-size: 16px; color: var(--gold); }
+  .agent-card-mobile { font-family: monospace; color: #aaa; font-size: 13px; margin-top: 4px; }
+  .agent-card-actions { margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -26,7 +31,7 @@
   <div class="login-box">
     <div class="login-logo" style="color: var(--gold); font-size: 28px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;">UP Darbar</div>
     <h2 class="login-title">Admin Login</h2>
-    <p class="login-subtitle">Super Admin Access</p>
+    <p class="login-subtitle">Super Admin Access Only</p>
     <div id="login-error" class="alert alert-error" style="display:none;text-align:left;"></div>
     <div class="form-group">
       <label class="form-label">Mobile Number</label>
@@ -37,6 +42,10 @@
       <input type="password" id="login-password" class="form-input" placeholder="Enter password"/>
     </div>
     <button class="btn btn-gold btn-full btn-lg" onclick="adminLogin()" id="login-btn">LOGIN</button>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:20px;">
+      Default: Mobile: <strong style="color:var(--gold)">9999999999</strong> | Pass: <strong style="color:var(--gold)">admin123</strong>
+    </p>
+    <p style="margin-top:8px;"><a href="index.html" style="color:var(--text-muted);font-size:12px;">← Back to Home</a></p>
   </div>
 </div>
 
@@ -50,6 +59,7 @@
     <div class="nav-brand">UP Darbar <span>Super Admin</span></div>
   </div>
   <div class="nav-links">
+    <span style="font-size:12px;color:var(--gold);" id="nav-admin-name"></span>
     <a href="index.html" class="nav-btn outline">Home</a>
     <button class="nav-btn danger" onclick="adminLogout()">Logout</button>
   </div>
@@ -65,20 +75,42 @@
 <div class="sidebar" id="sidebar">
   <div class="sidebar-section">
     <div class="sidebar-label">Main</div>
-    <button class="sidebar-link active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="sidebar-icon">📊</span> Dashboard</button>
-    <button class="sidebar-link" onclick="showPage('number')" id="nav-number"><span class="sidebar-icon">🎯</span> Open Number</button>
-    <button class="sidebar-link" onclick="showPage('results')" id="nav-results"><span class="sidebar-icon">📅</span> Results</button>
+    <button class="sidebar-link active" onclick="showPage('dashboard')" id="nav-dashboard">
+      <span class="sidebar-icon">📊</span> Dashboard
+    </button>
+    <button class="sidebar-link" onclick="showPage('number')" id="nav-number">
+      <span class="sidebar-icon">🎯</span> Open Number
+    </button>
+    <button class="sidebar-link" onclick="showPage('results')" id="nav-results">
+      <span class="sidebar-icon">📅</span> Results
+    </button>
+    <button class="sidebar-link" onclick="showPage('schedule')" id="nav-schedule">
+      <span class="sidebar-icon">⏰</span> Schedule
+    </button>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">Bets</div>
-    <button class="sidebar-link" onclick="showPage('bets')" id="nav-bets"><span class="sidebar-icon">💰</span> Bet Monitor</button>
-    <button class="sidebar-link" onclick="showPage('betsummary')" id="nav-betsummary"><span class="sidebar-icon">📋</span> Bet Summary</button>
-    <button class="sidebar-link" onclick="showPage('reports')" id="nav-reports"><span class="sidebar-icon">📈</span> Reports</button>
+    <div class="sidebar-label">Bets Management</div>
+    <button class="sidebar-link" onclick="showPage('bets')" id="nav-bets">
+      <span class="sidebar-icon">💰</span> Bet Monitor
+    </button>
+    <button class="sidebar-link" onclick="showPage('betsummary')" id="nav-betsummary">
+      <span class="sidebar-icon">📋</span> Risk Management
+    </button>
+    <button class="sidebar-link" onclick="showPage('reports')" id="nav-reports">
+      <span class="sidebar-icon">📈</span> Reports
+    </button>
   </div>
   <div class="sidebar-section">
-    <div class="sidebar-label">Management</div>
-    <button class="sidebar-link" onclick="showPage('agents')" id="nav-agents"><span class="sidebar-icon">👥</span> Agents</button>
-    <button class="sidebar-link" onclick="showPage('settings')" id="nav-settings"><span class="sidebar-icon">⚙️</span> Settings</button>
+    <div class="sidebar-label">System</div>
+    <button class="sidebar-link" onclick="showPage('agents')" id="nav-agents">
+      <span class="sidebar-icon">👥</span> Agents
+    </button>
+    <button class="sidebar-link" onclick="showPage('settings')" id="nav-settings">
+      <span class="sidebar-icon">⚙️</span> Settings
+    </button>
+    <button class="sidebar-link" onclick="showPage('backup')" id="nav-backup">
+      <span class="sidebar-icon">💾</span> Backup & Export
+    </button>
   </div>
 </div>
 
@@ -88,35 +120,78 @@
   <div class="section-header">
     <h2 class="section-title">📊 Super Admin Dashboard</h2>
   </div>
+
   <div class="grid-4" style="margin-bottom:20px;">
-    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="dash-today-num">--</div><div class="stat-label">Today's Number</div></div>
-    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="dash-agents">0</div><div class="stat-label">Total Agents</div></div>
-    <div class="stat-card"><div class="stat-icon">🎲</div><div class="stat-value" id="dash-bets">0</div><div class="stat-label">Total Bets Today</div></div>
-    <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="dash-amount" style="font-size:18px;">₹0</div><div class="stat-label">Total Play Amount</div></div>
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value" id="dash-today-num">--</div>
+      <div class="stat-label">Today's Number</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-value" id="dash-agents">0</div>
+      <div class="stat-label">Total Agents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎲</div>
+      <div class="stat-value" id="dash-bets">0</div>
+      <div class="stat-label">Total Bets Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value" id="dash-amount" style="font-size:18px;">₹0</div>
+      <div class="stat-label">Total Play Amount</div>
+    </div>
   </div>
-  <div class="grid-2" style="margin-bottom:20px;">
-    <div class="stat-card"><div class="stat-icon">💸</div><div class="stat-value" id="dash-commission" style="font-size:18px;">₹0</div><div class="stat-label">Total Commission Given</div></div>
+
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="stat-card">
+      <div class="stat-icon">💸</div>
+      <div class="stat-value" id="dash-commission" style="font-size:18px;">₹0</div>
+      <div class="stat-label">Total Commission Given</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-value" id="dash-next-num">--</div>
+      <div class="stat-label">Next Auto Scheduled</div>
+    </div>
     <div class="card card-gold" style="padding:16px;text-align:center;">
       <div class="card-title" style="justify-content:center;">⏱️ Result Opens To Public In</div>
       <div class="countdown" id="dash-countdown">--:--:--</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">⚡ Quick Actions</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="showPage('number')">🎯 Open Number</button>
+      <button class="btn btn-blue" onclick="showPage('betsummary')">📋 Check Risk Management</button>
+      <button class="btn btn-green" onclick="showPage('agents')">👥 Manage Agents</button>
+      <button class="btn btn-gray" onclick="showPage('backup')">💾 Take Backup</button>
     </div>
   </div>
 </div>
 
 <div id="page-number" style="display:none;">
   <div class="section-header">
-    <h2 class="section-title">🎯 Open Number</h2>
+    <h2 class="section-title">🎯 Open Number Manually</h2>
   </div>
+
   <div class="grid-2">
     <div class="card card-gold">
       <div class="card-title">Open Today's Number</div>
-      <p style="font-size:12px; margin-bottom:10px;">Note: Admin can see this instantly. Public & Agents will ONLY see this at 6:00 PM.</p>
+      <p style="font-size:12px; margin-bottom:10px;">Note: Admin can see this instantly. Public & Agents will ONLY see this at 6:00 PM IST.</p>
       <div class="form-group">
         <label class="form-label">Number (00-99)</label>
         <input type="number" id="open-num" class="form-input" min="0" max="99" placeholder="45"/>
       </div>
-      <button class="btn btn-gold btn-full" onclick="openNumber()">✅ Save Number</button>
+      <div class="form-group" style="display:none;">
+        <label class="form-label">Open Time</label>
+        <input type="time" id="open-time" class="form-input"/>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="openNumber()" style="margin-top:10px;">✅ Save Number</button>
     </div>
+
     <div class="card">
       <div class="card-title">Recent Results</div>
       <div id="manage-results-list"></div>
@@ -126,7 +201,7 @@
 
 <div id="page-results" style="display:none;">
   <div class="section-header">
-    <h2 class="section-title">📅 All Results</h2>
+    <h2 class="section-title">📅 All Results History</h2>
     <button class="btn btn-gold btn-sm" onclick="exportResultsCSV()">⬇ Export CSV</button>
   </div>
   <div class="card" style="padding:0;overflow:hidden;">
@@ -138,16 +213,45 @@
   </div>
 </div>
 
+<div id="page-schedule" style="display:none;">
+  <div class="section-header">
+    <h2 class="section-title">⏰ Auto Schedule Numbers</h2>
+  </div>
+  <div class="grid-2">
+    <div class="card card-gold">
+      <div class="card-title">Schedule Future Number</div>
+      <p style="font-size:12px; margin-bottom:10px;">Set a number to open automatically on a specific date.</p>
+      <div class="form-group">
+        <label class="form-label">Number (00-99)</label>
+        <input type="number" id="sched-num" class="form-input" min="0" max="99" placeholder="45"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" id="sched-date" class="form-input"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time</label>
+        <input type="time" id="sched-time" class="form-input"/>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="scheduleNumber()" style="margin-top:10px;">📅 Set Schedule</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Upcoming Auto-Schedules</div>
+      <div id="schedule-list"><div class="loading"><div class="spinner"></div>Loading schedules...</div></div>
+    </div>
+  </div>
+</div>
+
 <div id="page-bets" style="display:none;">
   <div class="section-header">
-    <h2 class="section-title">💰 Bet Monitor</h2>
-    <button class="btn btn-gold btn-sm" onclick="exportBetsCSV()">⬇ Export CSV</button>
+    <h2 class="section-title">💰 Live Bet Monitor</h2>
+    <button class="btn btn-gold btn-sm" onclick="exportBetsCSV()">⬇ Export All Bets CSV</button>
   </div>
   <div class="card" style="margin-bottom:16px;">
     <div class="search-bar">
       <input type="text" id="bet-search-agent" class="search-input" placeholder="Search Agent Name..." oninput="filterBets()"/>
       <input type="text" id="bet-search-customer" class="search-input" placeholder="Search Customer Name..." oninput="filterBets()"/>
-      <input type="number" id="bet-search-num" class="search-input" placeholder="Number / Harup..." min="0" max="99" oninput="filterBets()"/>
+      <input type="number" id="bet-search-num" class="search-input" placeholder="Number / Harup (0-99)..." min="0" max="99" oninput="filterBets()"/>
       <input type="text" id="bet-search-date" class="search-input" placeholder="Date (DD-MM-YYYY)" oninput="filterBets()"/>
       <select id="bet-search-type" class="search-input" onchange="filterBets()">
         <option value="">All Bets (Num & Harup)</option>
@@ -157,7 +261,7 @@
     </div>
   </div>
   <div class="card" style="padding:0;overflow:hidden;">
-    <div id="bets-loading" class="loading"><div class="spinner"></div>Loading bets...</div>
+    <div id="bets-loading" class="loading"><div class="spinner"></div>Loading live bets...</div>
     <div style="overflow-x:auto;">
       <table class="history-table" id="bets-table" style="display:none; width:100%;">
         <thead><tr><th>Agent</th><th>Customer</th><th>Bet On</th><th>Play Amt</th><th>Win (If Pass)</th><th>Commission</th><th>Date & Time</th></tr></thead>
@@ -170,7 +274,7 @@
 <div id="page-betsummary" style="display:none;">
   <div class="section-header">
     <h2 class="section-title">📋 Risk Management & Summary</h2>
-    <button class="btn btn-gold" onclick="loadBetSummary()">🔄 Refresh Summary</button>
+    <button class="btn btn-gold" onclick="loadBetSummary()">🔄 Refresh Live Summary</button>
   </div>
   
   <div style="background: rgba(104, 211, 145, 0.1); border-left: 4px solid #68d391; padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 13px;">
@@ -218,13 +322,14 @@
 
 <div id="page-reports" style="display:none;">
   <div class="section-header">
-    <h2 class="section-title">📈 Reports</h2>
+    <h2 class="section-title">📈 Analytics & Reports</h2>
   </div>
   <div class="card" style="margin-bottom:20px;">
-    <div class="card-title">Report Type</div>
+    <div class="card-title">Generate Report</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn btn-gold" onclick="generateReport('daily')">📅 Daily Report</button>
-      <button class="btn btn-blue" onclick="generateReport('monthly')">🗓 Monthly Report</button>
+      <button class="btn btn-blue" onclick="generateReport('weekly')">📆 Weekly Report</button>
+      <button class="btn btn-green" onclick="generateReport('monthly')">🗓 Monthly Report</button>
     </div>
   </div>
   <div id="report-output"></div>
@@ -233,7 +338,7 @@
 <div id="page-agents" style="display:none;">
   <div class="section-header">
     <h2 class="section-title">👥 Agent Management</h2>
-    <button class="btn btn-gold" onclick="openModal('modal-agent')">+ Create Agent</button>
+    <button class="btn btn-gold" onclick="openModal('modal-agent')">+ Create New Agent</button>
   </div>
   <div class="card" style="margin-bottom:16px;">
     <input type="text" id="agent-search" class="search-input" placeholder="🔍 Search agent by name or mobile..." oninput="filterAgents()"/>
@@ -250,16 +355,16 @@
   <div class="grid-2">
     <div>
       <div class="card" style="margin-bottom:20px;">
-        <div class="card-title">Commission Rate</div>
-        <div class="form-group" style="max-width:200px;">
-          <label class="form-label">Global Commission % (For Agents)</label>
+        <div class="card-title">Agent Commission Settings</div>
+        <div class="form-group" style="max-width:250px;">
+          <label class="form-label">Global Commission % (Default 10%)</label>
           <input type="number" id="commission-rate" class="form-input" min="1" max="50" value="10"/>
         </div>
         <button class="btn btn-gold btn-sm" onclick="saveSettings()">Save Commission</button>
       </div>
       
       <div class="card">
-        <div class="card-title">Update Admin Password</div>
+        <div class="card-title">Update Super Admin Password</div>
         <div class="form-group">
           <label class="form-label">New Password</label>
           <input type="password" id="admin-new-pass" class="form-input" placeholder="Enter new admin password">
@@ -270,22 +375,90 @@
   </div>
 </div>
 
-</div></div></div>
+<div id="page-backup" style="display:none;">
+  <div class="section-header">
+    <h2 class="section-title">💾 Backup & Database Info</h2>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Export Data to CSV / JSON</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:10px;">
+        <button class="btn btn-gold" onclick="exportResultsCSV()">📥 Export All Results (CSV)</button>
+        <button class="btn btn-blue" onclick="exportBetsCSV()">📥 Export All Bets (CSV)</button>
+        <button class="btn btn-green" onclick="exportAgentsCSV()">📥 Export Agent List (CSV)</button>
+        <hr style="border-color:#333; margin: 10px 0;">
+        <button class="btn btn-gray" onclick="exportAllJSON()">📥 Full Database Backup (JSON)</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Database Storage Info</div>
+      <div id="db-info" style="margin-top:10px;">
+        <div class="result-item"><span class="result-key">Total Results Stored</span><span class="result-val" id="bi-results">-</span></div>
+        <div class="result-item"><span class="result-key">Total Bets Stored</span><span class="result-val" id="bi-bets">-</span></div>
+        <div class="result-item"><span class="result-key">Total Agents</span><span class="result-val" id="bi-agents">-</span></div>
+        <div class="result-item"><span class="result-key">Last Full Backup</span><span class="result-val" id="bi-last">Never</span></div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:20px; width:100%;" onclick="loadDBInfo()">🔄 Refresh Stats</button>
+    </div>
+  </div>
+</div>
 
-<div id="modal-agent" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal('modal-agent')">
+</div></div></div><div id="modal-agent" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal('modal-agent')">
   <div class="modal">
-    <div class="modal-title" id="agent-modal-title">Create Agent</div>
+    <div class="modal-title" id="agent-modal-title">Create New Agent</div>
     <input type="hidden" id="agent-edit-id"/>
-    <div class="form-group"><label>Full Name</label><input type="text" id="agent-name" class="form-input"/></div>
-    <div class="form-group"><label>Mobile</label><input type="tel" id="agent-mobile" class="form-input" maxlength="10"/></div>
-    <div class="form-group"><label>Password</label><input type="text" id="agent-password" class="form-input"/></div>
     <div class="form-group">
-      <label>Status</label>
-      <select id="agent-status" class="form-select"><option value="active">Active</option><option value="blocked">Blocked</option></select>
+      <label class="form-label">Full Name</label>
+      <input type="text" id="agent-name" class="form-input" placeholder="Agent Name"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mobile Number</label>
+      <input type="tel" id="agent-mobile" class="form-input" placeholder="9876543210" maxlength="10"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="agent-password" class="form-input" placeholder="Enter password"/>
+        <button class="btn btn-gray btn-sm" onclick="document.getElementById('agent-password').value=generatePassword()">Auto Generate</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address (Optional)</label>
+      <textarea id="agent-address" class="form-textarea" style="min-height:70px;" placeholder="Agent address..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Account Status</label>
+      <select id="agent-status" class="form-select">
+        <option value="active">Active</option>
+        <option value="blocked">Blocked</option>
+      </select>
     </div>
     <div class="modal-footer">
       <button class="btn btn-gray" onclick="closeModal('modal-agent')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveAgent()">Save</button>
+      <button class="btn btn-gold" onclick="saveAgent()">Save Agent</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-edit-result" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal('modal-edit-result')">
+  <div class="modal">
+    <div class="modal-title">Edit Result</div>
+    <input type="hidden" id="edit-result-id"/>
+    <div class="form-group">
+      <label class="form-label">Number (0-99)</label>
+      <input type="number" id="edit-result-num" class="form-input" min="0" max="99"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date (DD-MM-YYYY)</label>
+      <input type="text" id="edit-result-date" class="form-input" placeholder="DD-MM-YYYY"/>
+    </div>
+    <div class="form-group" style="display:none;">
+      <label class="form-label">Time</label>
+      <input type="text" id="edit-result-time" class="form-input" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeModal('modal-edit-result')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveEditResult()">Update Result</button>
     </div>
   </div>
 </div>
@@ -305,6 +478,11 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// =====================================================
+// GLOBAL HELPERS & UTILITIES
+// =====================================================
+const NUM_WORDS = {0:'Zero',1:'Ek',2:'Do',3:'Teen',4:'Char',5:'Paanch',6:'Chhe',7:'Saat',8:'Aath',9:'Nau',10:'Das',11:'Gyarah',12:'Barah',13:'Terah',14:'Chaudah',15:'Pandrah',16:'Solah',17:'Satrah',18:'Atharah',19:'Unnis',20:'Bees',21:'Ikkis',22:'Bais',23:'Teis',24:'Chaubis',25:'Pachis',26:'Chhabis',27:'Sattais',28:'Atthais',29:'Untis',30:'Tees',31:'Ikatees',32:'Battees',33:'Tentees',34:'Chautees',35:'Paintees',36:'Chhattees',37:'Saintees',38:'Adatees',39:'Untaalis',40:'Chalis',41:'Ikatalis',42:'Byalis',43:'Tentalis',44:'Chavalis',45:'Paintalis',46:'Chhiyalis',47:'Saintalis',48:'Adtalis',49:'Unnchas',50:'Pachas',51:'Ikkyavan',52:'Bavan',53:'Tirpan',54:'Chauvan',55:'Pachpan',56:'Chhappan',57:'Sattavan',58:'Athavan',59:'Unsath',60:'Saath',61:'Iksath',62:'Basath',63:'Tirsath',64:'Chausath',65:'Painsath',66:'Chhiyasath',67:'Sarsath',68:'Adsath',69:'Unhattar',70:'Sattar',71:'Ikahattar',72:'Bahattar',73:'Tihattar',74:'Chauhattar',75:'Pachhattar',76:'Chhihattar',77:'Sathattar',78:'Athhattar',79:'Unasi',80:'Assi',81:'Ikyasi',82:'Bayasi',83:'Tirasi',84:'Chaurasi',85:'Pachasi',86:'Chhiyasi',87:'Satasi',88:'Athasi',89:'Nabbay',90:'Nabbe',91:'Ikyanabbe',92:'Banabbe',93:'Tiranabbe',94:'Chaunabbe',95:'Pachanabbe',96:'Chhiyanabbe',97:'Satanabbe',98:'Athanabbe',99:'Ninyanabbe'};
+function getWord(n){return NUM_WORDS[parseInt(n)]||n.toString();}
 function getTodayDateStr(){ const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`; }
 function getTimeStr(){ return new Date().toLocaleTimeString('en-IN',{timeZone: 'Asia/Kolkata', hour:'2-digit', minute:'2-digit', hour12:true}); }
 function formatINR(a){ return '₹'+Number(a).toLocaleString('en-IN'); }
@@ -312,58 +490,94 @@ function showToast(msg,type='info'){ let c=document.getElementById('toast-contai
 function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
 function openModal(id){ document.getElementById(id).style.display='flex'; }
 function closeModal(id){ document.getElementById(id).style.display='none'; }
+function generatePassword(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';return Array.from({length:8},()=>chars[Math.floor(Math.random()*chars.length)]).join('');}
 
+// =====================================================
+// APP STATE
+// =====================================================
 let currentAdmin = null, allBets = [], allAgents = [], allResults = [];
+let scheduleTimer = null, countdownInterval = null, unsubBets = null;
+let currentSettings = {commissionRate: 10};
 
+// =====================================================
+// LIVE CLOCK & MASTER TIMERS
+// =====================================================
 function initLiveClock() {
   setInterval(() => {
     const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
     document.getElementById('dash-time').textContent = now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true});
     document.getElementById('live-date').textContent = now.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
     
-    // Countdown to 6 PM IST
+    // Master Countdown to 6 PM IST
     const target = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})); 
     target.setHours(18, 0, 0, 0); 
     let diff = target - now;
     if (diff > 0) {
       const h = Math.floor((diff / 3600000) % 24), m = Math.floor((diff / 60000) % 60), s = Math.floor((diff / 1000) % 60);
-      document.getElementById('dash-countdown').textContent = `${h}h ${m}m ${s}s`;
+      document.getElementById('dash-countdown').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     } else { 
       document.getElementById('dash-countdown').textContent = "Opened to Public"; 
+      document.getElementById('dash-countdown').style.color = "#68d391";
     }
   }, 1000);
 }
 
+// =====================================================
+// ADMIN AUTHENTICATION
+// =====================================================
 async function adminLogin() {
-  const m = document.getElementById('login-mobile').value, p = document.getElementById('login-password').value;
+  const m = document.getElementById('login-mobile').value.trim();
+  const p = document.getElementById('login-password').value.trim();
+  if(!m || !p) return showToast("Enter mobile and password", "error");
+  
+  document.getElementById('login-btn').disabled = true;
+  document.getElementById('login-btn').textContent = "Verifying...";
+
   try {
     const snap = await db.collection('admins').where('mobile','==',m).where('password','==',p).get();
     if (!snap.empty) {
       currentAdmin = {id: snap.docs[0].id, ...snap.docs[0].data()};
-      document.getElementById('login-page').style.display = 'none';
-      document.getElementById('admin-app').style.display = 'block';
-      initLiveClock(); showPage('dashboard'); loadAllData();
+      loginSuccess();
     } else {
+        // Fallback for first time setup
         if (m === '9999999999' && p === 'admin123') {
             const adminRef = await db.collection('admins').add({name:'Super Admin', mobile:'9999999999', password:'admin123'});
             currentAdmin = {id: adminRef.id, name:'Super Admin', mobile: m};
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('admin-app').style.display = 'block';
-            initLiveClock(); showPage('dashboard'); loadAllData();
+            loginSuccess();
         } else {
-            showToast('Invalid login','error');
+            showToast('Invalid admin credentials','error');
         }
     }
   } catch(e) { showToast(e.message,'error'); }
+  
+  document.getElementById('login-btn').disabled = false;
+  document.getElementById('login-btn').textContent = "LOGIN";
+}
+
+function loginSuccess() {
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+    document.getElementById('nav-admin-name').textContent = currentAdmin.name || 'Admin';
+    initLiveClock(); showPage('dashboard'); loadAllData();
 }
 
 function adminLogout() {
     currentAdmin = null;
     document.getElementById('login-page').style.display = 'flex';
     document.getElementById('admin-app').style.display = 'none';
+    document.getElementById('login-mobile').value = '';
+    document.getElementById('login-password').value = '';
 }
 
+// =====================================================
+// DATA LOADERS
+// =====================================================
 function loadAllData() {
+  db.collection('settings').doc('main').onSnapshot(snap => {
+    if(snap.exists) currentSettings = snap.data();
+    if(currentSettings.commissionRate) document.getElementById('commission-rate').value = currentSettings.commissionRate;
+  });
+
   db.collection('agents').onSnapshot(s => { 
       allAgents=s.docs.map(d=>({id:d.id,...d.data()})); 
       document.getElementById('dash-agents').textContent=allAgents.length; 
@@ -378,28 +592,39 @@ function loadAllData() {
   db.collection('bets').orderBy('timestamp','desc').onSnapshot(s => { 
       allBets=s.docs.map(d=>({id:d.id,...d.data()})); 
       renderBetsTable(); 
+      if(document.getElementById('page-betsummary').style.display === 'block') loadBetSummary();
   });
+
+  loadSchedules();
 }
 
 function showPage(p) {
   document.querySelectorAll('.page-content > div').forEach(d=>d.style.display='none');
   document.getElementById('page-'+p).style.display='block';
   document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
-  document.getElementById('nav-'+p).classList.add('active'); 
+  const el = document.getElementById('nav-'+p);
+  if(el) el.classList.add('active'); 
   document.getElementById('sidebar').classList.remove('open');
+  
   if(p==='betsummary') loadBetSummary();
+  if(p==='backup') loadDBInfo();
 }
 
+// =====================================================
+// NUMBER / RESULTS MANAGEMENT
+// =====================================================
 async function openNumber() {
   const n = parseInt(document.getElementById('open-num').value);
-  if(isNaN(n)||n<0||n>99) return showToast('Invalid number','error');
+  if(isNaN(n)||n<0||n>99) return showToast('Please enter a valid number (0-99)','error');
+  
   await db.collection('results').add({
       number:n, 
+      numberWord: getWord(n),
       date:getTodayDateStr(), 
       time:getTimeStr(), 
       timestamp:firebase.firestore.FieldValue.serverTimestamp()
   });
-  showToast('Result saved! Visible to users at 6 PM.','success');
+  showToast(`Number ${String(n).padStart(2,'0')} saved successfully! Public can see it at 6:00 PM.`,'success');
   document.getElementById('open-num').value = '';
 }
 
@@ -407,10 +632,106 @@ function renderResults() {
   const todayNum = allResults.find(r=>r.date===getTodayDateStr())?.number;
   document.getElementById('dash-today-num').textContent = todayNum !== undefined ? String(todayNum).padStart(2,'0') : '--';
   
-  document.getElementById('results-body').innerHTML = allResults.map(r=>`<tr><td>${r.date}</td><td><span class="number-badge">${String(r.number).padStart(2,'0')}</span></td><td>${r.time}</td><td><button class="btn btn-red btn-sm" onclick="db.collection('results').doc('${r.id}').delete()">🗑</button></td></tr>`).join('');
-  document.getElementById('manage-results-list').innerHTML = allResults.slice(0,5).map(r=>`<div class="bet-summary-row"><span>${r.date}</span><span class="number-badge">${String(r.number).padStart(2,'0')}</span><button class="btn btn-red btn-sm" onclick="db.collection('results').doc('${r.id}').delete()">🗑</button></div>`).join('');
+  document.getElementById('results-loading').style.display = 'none';
+  if(allResults.length === 0) {
+      document.getElementById('results-table').style.display='none';
+      return;
+  }
+  
+  document.getElementById('results-table').style.display='table';
+  document.getElementById('results-body').innerHTML = allResults.map(r=>`<tr><td>${r.date}</td><td><span class="number-badge">${String(r.number).padStart(2,'0')}</span></td><td>${r.numberWord||getWord(r.number)}</td><td>${r.time}</td><td><button class="btn btn-gold btn-sm" onclick="openEditResult('${r.id}')">✏️</button> <button class="btn btn-red btn-sm" onclick="deleteResult('${r.id}')">🗑</button></td></tr>`).join('');
+  document.getElementById('manage-results-list').innerHTML = allResults.slice(0,5).map(r=>`<div class="bet-summary-row"><span>${r.date}</span><span class="number-badge">${String(r.number).padStart(2,'0')}</span><button class="btn btn-red btn-sm" onclick="deleteResult('${r.id}')">🗑</button></div>`).join('');
 }
 
+function openEditResult(id) {
+  const r = allResults.find(x=>x.id===id);
+  if(!r)return;
+  document.getElementById('edit-result-id').value = id;
+  document.getElementById('edit-result-num').value = r.number;
+  document.getElementById('edit-result-date').value = r.date;
+  document.getElementById('edit-result-time').value = r.time || '';
+  openModal('modal-edit-result');
+}
+
+async function saveEditResult() {
+  const id = document.getElementById('edit-result-id').value;
+  const num = parseInt(document.getElementById('edit-result-num').value);
+  const date = document.getElementById('edit-result-date').value;
+  if(!id||isNaN(num)||!date) return showToast('Fill required fields','error');
+  try {
+    await db.collection('results').doc(id).update({number:num, numberWord:getWord(num), date});
+    showToast('Result updated!','success');
+    closeModal('modal-edit-result');
+  } catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function deleteResult(id) {
+  if(!confirm('Are you sure you want to permanently delete this result?')) return;
+  await db.collection('results').doc(id).delete();
+  showToast('Result deleted successfully!','success');
+}
+
+// =====================================================
+// SCHEDULE LOGIC
+// =====================================================
+async function scheduleNumber() {
+  const num = parseInt(document.getElementById('sched-num').value);
+  const date = document.getElementById('sched-date').value;
+  const time = document.getElementById('sched-time').value;
+  if(isNaN(num)||num<0||num>99||!date||!time) return showToast('Fill all schedule fields','error');
+
+  const parts = date.split('-');
+  const dateStr = `${parts[2]}-${parts[1]}-${parts[0]}`; 
+  
+  await db.collection('schedule').add({
+      number:num, date:dateStr, time, status:'pending',
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  showToast('Number scheduled successfully!','success');
+  document.getElementById('sched-num').value='';
+  setupScheduleChecker();
+}
+
+function loadSchedules() {
+  db.collection('schedule').where('status','==','pending').orderBy('timestamp').onSnapshot(snap => {
+      const el = document.getElementById('schedule-list');
+      if(snap.empty){ el.innerHTML='<div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-text">No pending schedules</div></div>'; return; }
+      el.innerHTML = snap.docs.map(doc=>{
+        const s=doc.data();
+        return `<div class="bet-summary-row"><span class="number-badge">${String(s.number).padStart(2,'0')}</span><span>${s.date} at ${s.time}</span><button class="btn btn-red btn-sm" onclick="if(confirm('Delete schedule?')) db.collection('schedule').doc('${doc.id}').delete()">🗑 Cancel</button></div>`;
+      }).join('');
+      
+      const next = snap.docs[0]?.data();
+      document.getElementById('dash-next-num').textContent = next ? String(next.number).padStart(2,'0') : '--';
+  });
+  setupScheduleChecker();
+}
+
+function setupScheduleChecker() {
+  if(scheduleTimer) clearInterval(scheduleTimer);
+  scheduleTimer = setInterval(async()=>{
+    const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    const snap = await db.collection('schedule').where('status','==','pending').get();
+    snap.docs.forEach(async doc=>{
+      const s=doc.data();
+      const parts=s.date.split('-');
+      const target=new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${s.time}`);
+      if(now >= target){
+        await db.collection('results').add({
+          number:s.number, numberWord:getWord(s.number),
+          date:s.date, time:s.time,
+          timestamp:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await doc.ref.update({status:'completed'});
+        showToast(`Auto-opened Scheduled Number: ${s.number}`,'success');
+      }
+    });
+  }, 30000); 
+}
+
+// =====================================================
+// BET MONITOR
+// =====================================================
 function filterBets() { renderBetsTable(); }
 
 function renderBetsTable() {
@@ -425,30 +746,47 @@ function renderBetsTable() {
   let b = allBets;
   const qA=document.getElementById('bet-search-agent').value.toLowerCase(), 
         qC=document.getElementById('bet-search-customer').value.toLowerCase(), 
+        qN=document.getElementById('bet-search-num').value,
+        qD=document.getElementById('bet-search-date').value,
         qT=document.getElementById('bet-search-type').value;
         
   if(qA) b=b.filter(x=>(x.agentName||'').toLowerCase().includes(qA));
   if(qC) b=b.filter(x=>(x.customerName||'').toLowerCase().includes(qC));
+  if(qD) b=b.filter(x=>(x.date||'').includes(qD));
   if(qT) b=b.filter(x=>x.type===qT);
+  if(qN) {
+    b=b.filter(x=>{
+        if(x.type === 'number' && String(x.number) === qN) return true;
+        if(x.type === 'harup' && String(x.harup) === qN) return true;
+        return false;
+    });
+  }
 
+  document.getElementById('bets-loading').style.display='none';
+  const tbl = document.getElementById('bets-table');
+  if(!b.length){ tbl.style.display='none'; return; }
+  
+  tbl.style.display='table';
   document.getElementById('bets-body').innerHTML = b.map(x=>`
     <tr>
       <td style="font-size:12px;">${x.agentName||'--'}<br><span style="color:#888;">${x.agentMobile||''}</span></td>
       <td style="color:var(--gold); font-weight:bold;">${x.customerName||'Guest'}</td>
       <td>${x.type === 'number' ? `<span class="number-badge" style="background:#d4af37;">Num: ${String(x.number||0).padStart(2,'0')}</span>` : `<span class="harup-badge" style="background:#2b6cb0;">Harup: ${x.harup}</span>`}</td>
       <td class="amount-gold">${formatINR(x.amount||0)}</td>
-      <td><span class="win-badge">${formatINR(x.userWin||0)}</span></td>
+      <td><span class="win-badge">${formatINR(x.userWin || (x.type==='number'?x.amount*90:x.amount*9))}</span></td>
       <td class="amount-red">${formatINR(x.commission||0)}</td>
       <td style="font-size:11px;color:#aaa;">${x.date} ${x.time}</td>
     </tr>
   `).join('');
 }
 
-// RISK MANAGEMENT SUMMARY LOGIC
+// =====================================================
+// RISK MANAGEMENT (BET SUMMARY)
+// =====================================================
 function loadBetSummary() {
   const tb = allBets.filter(b=>b.date===getTodayDateStr());
 
-  // Init completely empty 0-99 and 0-9
+  // Initialize arrays 0-99 and 0-9
   let numStats = Array.from({length: 100}, (_, i) => ({ num: i, amount: 0, commission: 0, payout: 0, count: 0 }));
   let harupStats = Array.from({length: 10}, (_, i) => ({ harup: i, amount: 0, commission: 0, payout: 0, count: 0 }));
 
@@ -459,7 +797,7 @@ function loadBetSummary() {
         numStats[n].amount += parseFloat(b.amount || 0);
         numStats[n].commission += parseFloat(b.commission || 0);
         numStats[n].count += 1;
-        numStats[n].payout += parseFloat(b.userWin || (b.amount * 90)); // 1 ka 90 liability
+        numStats[n].payout += parseFloat(b.userWin || (b.amount * 90));
       }
     } else if(b.type === 'harup') {
       let h = parseInt(b.harup);
@@ -467,7 +805,7 @@ function loadBetSummary() {
         harupStats[h].amount += parseFloat(b.amount || 0);
         harupStats[h].commission += parseFloat(b.commission || 0);
         harupStats[h].count += 1;
-        harupStats[h].payout += parseFloat(b.userWin || (b.amount * 9)); // 1 ka 9 liability
+        harupStats[h].payout += parseFloat(b.userWin || (b.amount * 9));
       }
     }
   });
@@ -505,7 +843,7 @@ function loadBetSummary() {
   // Render Zero Numbers
   document.getElementById('summary-zero-numbers').innerHTML = zeroNums.length > 0 
       ? `<div style="display:flex; flex-wrap:wrap; gap:6px;">${zeroNums.map(n=>`<span class="number-badge" style="background:#333;color:#888;">${n}</span>`).join('')}</div>`
-      : `<div class="empty-state-text">All numbers have bets!</div>`;
+      : `<div class="empty-state-text" style="font-size:12px;color:#888;">No Safe Numbers Available!</div>`;
 
   // Render Active Harups
   let harupHtml = '';
@@ -533,7 +871,7 @@ function loadBetSummary() {
   // Render Zero Harups
   document.getElementById('summary-zero-harups').innerHTML = zeroHarups.length > 0 
       ? `<div style="display:flex; flex-wrap:wrap; gap:6px;">${zeroHarups.map(h=>`<span class="harup-badge" style="background:#333;color:#888;">H${h}</span>`).join('')}</div>`
-      : `<div class="empty-state-text">All harups have bets!</div>`;
+      : `<div class="empty-state-text" style="font-size:12px;color:#888;">No Safe Harups Available!</div>`;
 
   // Totals
   const totalAmt = tb.reduce((s,b)=>s+parseFloat(b.amount||0),0);
@@ -544,6 +882,69 @@ function loadBetSummary() {
   document.getElementById('summary-totals').style.display = 'block';
 }
 
+// =====================================================
+// REPORTS LOGIC
+// =====================================================
+function generateReport(type) {
+  const now = new Date();
+  let filtered = allBets;
+  let title = '';
+
+  if(type==='daily'){
+    const today = getTodayDateStr();
+    filtered = allBets.filter(b=>b.date===today);
+    title = 'Daily Report — '+today;
+  } else if(type==='weekly'){
+    const week = new Date(now); week.setDate(week.getDate()-7);
+    filtered = allBets.filter(b=>{
+      if(!b.timestamp?.toDate) return false;
+      return b.timestamp.toDate() >= week;
+    });
+    title = 'Weekly Report (Last 7 Days)';
+  } else {
+    const month = new Date(now); month.setDate(month.getDate()-30);
+    filtered = allBets.filter(b=>{
+      if(!b.timestamp?.toDate) return false;
+      return b.timestamp.toDate() >= month;
+    });
+    title = 'Monthly Report (Last 30 Days)';
+  }
+
+  const totalAmt = filtered.reduce((s,b)=>s+parseFloat(b.amount||0),0);
+  const totalComm = filtered.reduce((s,b)=>s+parseFloat(b.commission||0),0);
+
+  document.getElementById('report-output').innerHTML = `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">📈 ${title}</div>
+      <div class="grid-3" style="margin-top:15px;">
+        <div class="stat-card"><div class="stat-value">${filtered.length}</div><div class="stat-label">Total Bets</div></div>
+        <div class="stat-card"><div class="stat-value" style="font-size:18px;">${formatINR(totalAmt)}</div><div class="stat-label">Total Play Amount</div></div>
+        <div class="stat-card"><div class="stat-value" style="font-size:18px;color:#fc8181;">${formatINR(totalComm)}</div><div class="stat-label">Total Commission Given</div></div>
+      </div>
+      <button class="btn btn-gold btn-sm" style="margin-top:15px;" onclick='exportCSV(${JSON.stringify(filtered.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,WinIfPass:b.userWin||(b.type==="number"?b.amount*90:b.amount*9),Commission:b.commission})))}, "${type}_report")'>⬇ Export Detailed CSV</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="history-table">
+        <thead><tr><th>Date</th><th>Agent</th><th>Customer</th><th>Bet On</th><th>Amount</th><th>Win (Pass)</th></tr></thead>
+        <tbody>${filtered.slice(0,50).map(b=>`
+          <tr>
+            <td>${b.date||'--'}</td>
+            <td>${b.agentName||'--'}</td>
+            <td>${b.customerName||'Guest'}</td>
+            <td>${b.type === 'number' ? `Num: ${b.number}` : `Harup: ${b.harup}`}</td>
+            <td class="amount-gold">${formatINR(b.amount||0)}</td>
+            <td style="color:#68d391">${formatINR(b.userWin||(b.type==='number'?b.amount*90:b.amount*9))}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+  `;
+  showToast('Report generated successfully!','success');
+}
+
+// =====================================================
+// AGENTS MANAGEMENT
+// =====================================================
 function filterAgents() {
     const q = document.getElementById('agent-search').value.toLowerCase();
     const filtered = allAgents.filter(a => (a.name||'').toLowerCase().includes(q) || (a.mobile||'').includes(q));
@@ -553,49 +954,134 @@ function filterAgents() {
 function renderAgents(list) {
   document.getElementById('agents-grid').innerHTML = list.map(a=>`
     <div class="agent-card">
-      <div style="display:flex;justify-content:space-between;"><b>${a.name}</b><span class="badge ${a.status==='active'?'badge-green':'badge-red'}">${a.status}</span></div>
-      <div style="font-size:12px;margin:8px 0;">${a.mobile} | Pwd: ${a.password}</div>
-      <button class="btn btn-red btn-sm" onclick="if(confirm('Delete Agent?')) db.collection('agents').doc('${a.id}').delete()">🗑 Delete</button>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <div class="agent-card-name">${a.name||'Unknown'}</div>
+          <div class="agent-card-mobile">📞 ${a.mobile||'--'}</div>
+        </div>
+        <span class="badge ${a.status==='active'?'badge-green':'badge-red'}">${a.status||'active'}</span>
+      </div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:12px;">
+        🔑 Pwd: <strong>${a.password||'--'}</strong> <br> 
+        📍 ${a.address||'No address provided'}
+      </div>
+      <div class="agent-card-actions">
+        <button class="btn btn-gold btn-sm" onclick="editAgent('${a.id}')">✏️ Edit</button>
+        <button class="btn btn-blue btn-sm" onclick="toggleBlock('${a.id}','${a.status}')">${a.status==='blocked'?'🔓 Unblock':'🔒 Block'}</button>
+        <button class="btn btn-red btn-sm" onclick="deleteAgent('${a.id}')">🗑 Delete</button>
+      </div>
     </div>
   `).join('');
 }
 
 async function saveAgent(){
   const id=document.getElementById('agent-edit-id').value, 
-        d={name:document.getElementById('agent-name').value, mobile:document.getElementById('agent-mobile').value, password:document.getElementById('agent-password').value, status:document.getElementById('agent-status').value};
-  if(!d.name || !d.mobile || !d.password) return showToast('Fill all fields','error');
+        d={name:document.getElementById('agent-name').value, mobile:document.getElementById('agent-mobile').value, password:document.getElementById('agent-password').value, address:document.getElementById('agent-address').value, status:document.getElementById('agent-status').value};
+  if(!d.name || !d.mobile || !d.password) return showToast('Fill all mandatory fields','error');
   if(id) await db.collection('agents').doc(id).update(d); 
   else await db.collection('agents').add({...d, createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   closeModal('modal-agent'); 
-  showToast('Saved!','success');
-  document.getElementById('agent-name').value = ''; document.getElementById('agent-mobile').value = ''; document.getElementById('agent-password').value = '';
+  showToast('Agent details saved!','success');
+  
+  // reset form
+  document.getElementById('agent-name').value = '';
+  document.getElementById('agent-mobile').value = '';
+  document.getElementById('agent-password').value = '';
+  document.getElementById('agent-address').value = '';
+  document.getElementById('agent-edit-id').value = '';
 }
 
+function editAgent(id) {
+  const a = allAgents.find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('agent-edit-id').value = id;
+  document.getElementById('agent-modal-title').textContent = 'Edit Agent';
+  document.getElementById('agent-name').value = a.name||'';
+  document.getElementById('agent-mobile').value = a.mobile||'';
+  document.getElementById('agent-password').value = a.password||'';
+  document.getElementById('agent-address').value = a.address||'';
+  document.getElementById('agent-status').value = a.status||'active';
+  openModal('modal-agent');
+}
+
+async function toggleBlock(id, status) {
+  const newStatus = status==='blocked' ? 'active' : 'blocked';
+  await db.collection('agents').doc(id).update({status:newStatus}); 
+  showToast('Agent status updated','success'); 
+}
+
+async function deleteAgent(id) {
+  if(!confirm('Delete this agent permanently?')) return;
+  await db.collection('agents').doc(id).delete(); 
+  showToast('Agent deleted','success'); 
+}
+
+// =====================================================
+// SETTINGS
+// =====================================================
 async function saveSettings() {
     const rate = document.getElementById('commission-rate').value;
+    if(!rate || rate <= 0) return showToast("Enter a valid commission %", "error");
     await db.collection('settings').doc('main').set({commissionRate: parseInt(rate)}, {merge:true});
-    showToast('Settings Saved', 'success');
+    showToast('Global Commission Rate Saved!', 'success');
 }
 
 async function changeAdminPassword() {
   const pwd = document.getElementById('admin-new-pass').value;
-  if(pwd.length<4) return showToast('Min 4 chars required','error');
+  if(pwd.length<4) return showToast('Password must be at least 4 chars long','error');
   await db.collection('admins').doc(currentAdmin.id).update({password:pwd});
   document.getElementById('admin-new-pass').value = '';
-  showToast('Admin Password Updated!','success');
+  showToast('Super Admin Password Updated!','success');
 }
 
-function generateReport(type) {
-  const f = allBets.filter(b=> type==='daily' ? b.date===getTodayDateStr() : true);
-  document.getElementById('report-output').innerHTML = `
-    <div class="card" style="margin-top:15px;">
-        <div class="card-title">${type === 'daily' ? 'Today\'s' : 'All Time'} Report</div>
-        <div class="grid-3" style="margin-top:10px;">
-            <div class="stat-card"><div class="stat-value">${f.length}</div><div class="stat-label">Total Bets</div></div>
-            <div class="stat-card"><div class="stat-value">${formatINR(f.reduce((s,b)=>s+(parseFloat(b.amount)||0),0))}</div><div class="stat-label">Total Play Amount</div></div>
-            <div class="stat-card"><div class="stat-value" style="color:#fc8181;">${formatINR(f.reduce((s,b)=>s+(parseFloat(b.commission)||0),0))}</div><div class="stat-label">Given Commission</div></div>
-        </div>
-    </div>`;
+// =====================================================
+// BACKUP & EXPORTS
+// =====================================================
+function exportResultsCSV() {
+  exportCSV(allResults.map(r=>({Date:r.date,Number:r.number,Word:r.numberWord,Time:r.time})),'results_export');
+}
+
+function exportBetsCSV() {
+  exportCSV(allBets.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,AgentMobile:b.agentMobile,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,WinIfPass:b.userWin||(b.type==='number'?b.amount*90:b.amount*9),Commission:b.commission})),'bets_export');
+}
+
+function exportAgentsCSV() {
+  exportCSV(allAgents.map(a=>({Name:a.name,Mobile:a.mobile,Address:a.address,Status:a.status})),'agents_export');
+}
+
+async function exportAllJSON() {
+  const data = { results:allResults, bets:allBets, agents:allAgents, exportedAt:new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='full_backup.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Full Database Backup Downloaded!','success');
+  await db.collection('settings').doc('main').set({lastBackup:new Date().toISOString()},{merge:true});
+  loadDBInfo();
+}
+
+function loadDBInfo() {
+  document.getElementById('bi-results').textContent = allResults.length;
+  document.getElementById('bi-bets').textContent = allBets.length;
+  document.getElementById('bi-agents').textContent = allAgents.length;
+  db.collection('settings').doc('main').get().then(s=>{
+    if(s.exists && s.data().lastBackup) {
+        document.getElementById('bi-last').textContent = new Date(s.data().lastBackup).toLocaleString('en-IN');
+    }
+  });
+}
+
+function exportCSV(data, filename) {
+  if(!data.length){showToast('No data to export','error');return;}
+  const headers = Object.keys(data[0]);
+  const rows = data.map(r=>headers.map(h=>`"${r[h]||''}"`).join(','));
+  const csv = [headers.join(','),...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV Exported Successfully!','success');
 }
 </script>
 </body>
