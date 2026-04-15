@@ -81,7 +81,7 @@
   <div class="sidebar-section">
     <div class="sidebar-label">Main</div>
     <button class="sidebar-link active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="sidebar-icon">📊</span> Dashboard</button>
-    <button class="sidebar-link" onclick="showPage('number')" id="nav-number"><span class="sidebar-icon">🎯</span> Open Results</button>
+    <button class="sidebar-link" onclick="showPage('number')" id="nav-number"><span class="sidebar-icon">🎯</span> Open & Schedule</button>
     <button class="sidebar-link" onclick="showPage('results')" id="nav-results"><span class="sidebar-icon">📅</span> Results Hist</button>
   </div>
   <div class="sidebar-section">
@@ -120,7 +120,7 @@
   <div class="card">
     <div class="card-title">⚡ Quick Actions</div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-gold" onclick="showPage('number')">🎯 Open Results</button>
+      <button class="btn btn-gold" onclick="showPage('number')">🎯 Open & Schedule</button>
       <button class="btn btn-blue" onclick="showPage('risk')">📋 Risk Management</button>
       <button class="btn btn-green" onclick="showPage('settlement')">💸 Settlements</button>
     </div>
@@ -128,19 +128,25 @@
 </div>
 
 <div id="page-number" style="display:none;">
-  <div class="section-header"><h2 class="section-title">🎯 Open Daily Results</h2></div>
+  <div class="section-header"><h2 class="section-title">🎯 Open & Schedule Results</h2></div>
+  <div style="background:rgba(240,180,41,.08);border-left:4px solid #f0b429;padding:12px 16px;margin-bottom:18px;border-radius:6px;font-size:13px;">
+    💡 <strong>Schedule Info:</strong> Agar aap aaj ka result daalna chahte hain toh <strong>Date</strong> khaali chhod dein (wo automatically aaj ki le lega). Agar aage ki date ka schedule karna hai toh pehle Date select karein.
+  </div>
   <div class="grid-2">
     <div class="card card-gold">
-      <div class="card-title">Open Today's Number</div>
+      <div class="card-title">Schedule Number</div>
+      <div class="form-group"><label class="form-label">Select Date (Optional)</label><input type="date" id="open-num-date" class="form-input"/></div>
       <div class="form-group"><label class="form-label">Number (00-99)</label><input type="number" id="open-num" class="form-input" min="0" max="99" placeholder="45"/></div>
       <div class="form-group"><label class="form-label">Open Time (Public visibility)</label><input type="time" id="open-num-time" class="form-input"/></div>
-      <button class="btn btn-gold btn-full" onclick="openResultData('number')" style="margin-top:12px;">✅ Save & Open Number</button>
+      <button class="btn btn-gold btn-full" onclick="openResultData('number')" style="margin-top:12px;">✅ Save & Schedule Number</button>
     </div>
+    
     <div class="card" style="border: 1px solid rgba(99,179,237,0.4);">
-      <div class="card-title" style="color:#63b3ed;">Open Today's Harup</div>
+      <div class="card-title" style="color:#63b3ed;">Schedule Harup</div>
+      <div class="form-group"><label class="form-label">Select Date (Optional)</label><input type="date" id="open-harup-date" class="form-input"/></div>
       <div class="form-group"><label class="form-label">Harup (0-9)</label><input type="number" id="open-harup" class="form-input" min="0" max="9" placeholder="4"/></div>
       <div class="form-group"><label class="form-label">Open Time (Public visibility)</label><input type="time" id="open-harup-time" class="form-input"/></div>
-      <button class="btn btn-blue btn-full" onclick="openResultData('harup')" style="margin-top:12px;">✅ Save & Open Harup</button>
+      <button class="btn btn-blue btn-full" onclick="openResultData('harup')" style="margin-top:12px;">✅ Save & Schedule Harup</button>
     </div>
   </div>
 </div>
@@ -469,7 +475,13 @@ function showPage(p){
 }
 
 async function openResultData(type) {
-  const today = getToday();
+  let selectedDateStr = document.getElementById(`open-${type}-date`).value;
+  let targetDate = getToday(); // Default aaj ka din
+  if (selectedDateStr) {
+    const [y, m, d] = selectedDateStr.split('-');
+    targetDate = `${d}-${m}-${y}`; // Format: DD-MM-YYYY
+  }
+
   const updateData = { timestamp: firebase.firestore.FieldValue.serverTimestamp() };
   
   if(type === 'number') {
@@ -488,10 +500,11 @@ async function openResultData(type) {
   }
 
   try {
-    await db.collection('results').doc(today).set(updateData, { merge: true });
-    toast(`${type.toUpperCase()} saved successfully!`,'success');
+    await db.collection('results').doc(targetDate).set(updateData, { merge: true });
+    toast(`${type.toUpperCase()} scheduled for ${targetDate}!`, 'success');
     document.getElementById(`open-${type}`).value = '';
     document.getElementById(`open-${type}-time`).value = '';
+    document.getElementById(`open-${type}-date`).value = '';
   } catch(e) { toast('Error: '+e.message,'error'); }
 }
 
