@@ -8,7 +8,37 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
+<style>
+.live-header{background:#111;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;}
+.live-clock-time{font-size:16px;color:#d4af37;font-family:'Orbitron',monospace;letter-spacing:1px;}
+.live-clock-date{font-size:12px;color:#aaa;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;}
+.s-input{flex:1;min-width:140px;padding:9px 12px;background:#1c2130;border:1px solid #333;color:#fff;border-radius:6px;font-size:13px;outline:none;}
+.s-input:focus{border-color:#d4af37;}
+.s-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.win-badge{background:rgba(104,211,145,.2);color:#68d391;font-size:11px;padding:2px 8px;border-radius:4px;}
+.badge-g{background:#276749;color:#9ae6b4;padding:2px 8px;border-radius:4px;font-size:11px;}
+.badge-r{background:#742a2a;color:#fc8181;padding:2px 8px;border-radius:4px;font-size:11px;}
+.agent-card{background:var(--bg-card,#161a22);border:1px solid #252b38;padding:16px;border-radius:10px;display:flex;gap:15px;}
+.agent-card-img{width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid #444;}
+.agent-card-info{flex:1;}
+.agent-card-name{font-weight:700;font-size:16px;color:#f0b429;}
+.agent-card-mobile{font-family:monospace;color:#aaa;font-size:13px;margin-top:3px;}
+.risk-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:6px;background:#161a22;border:1px solid #252b38;}
+.risk-row.best-pick{background:rgba(104,211,145,.12);border:1px solid #38a169;}
+.risk-row.mid-pick{background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.2);}
+.risk-row.danger-pick{background:rgba(229,62,62,.08);border:1px solid rgba(229,62,62,.2);}
+.risk-num{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;min-width:42px;text-align:center;padding:4px 8px;border-radius:6px;}
+.risk-info{flex:1;}
+.risk-info .ri-top{font-size:12px;color:#aaa;}
+.risk-info .ri-bot{font-size:13px;font-weight:700;}
+.risk-payout{text-align:right;min-width:80px;}
+.risk-payout .rp-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;}
+.risk-payout .rp-val{font-size:15px;font-weight:700;}
+.zero-tags{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0;}
+.summary-box {background: rgba(240, 180, 41, 0.1); border: 1px solid rgba(240, 180, 41, 0.4); padding: 12px; border-radius: 8px; margin-bottom: 15px;}
+.summary-box h4 {margin:0 0 10px 0; color: #f0b429; font-size:14px;}
+.summary-item {display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding:4px 0;font-size:13px;}
+</style>
 </head>
 <body>
 
@@ -498,7 +528,6 @@ async function saveEditResult(){
   toast('Updated!','success'); closeModal('modal-edit-result');
 }
 
-// ---------------- SETTLEMENT LOGIC ----------------
 function renderSettlement() {
   const today = getToday();
   const stats = {};
@@ -510,14 +539,9 @@ function renderSettlement() {
   allBets.forEach(b => {
     if(!b.settled) {
       if(!stats[b.agentId]) stats[b.agentId] = { name: b.agentName||'Unknown', mobile: b.agentMobile||'--', todayComm: 0, dueComm: 0, dueBetIds: [] };
-      
       const commAmt = parseFloat(b.commission) || 0;
-      if(b.date === today) {
-        stats[b.agentId].todayComm += commAmt; // Not available for settle until tomorrow
-      } else {
-        stats[b.agentId].dueComm += commAmt; // Available to settle
-        stats[b.agentId].dueBetIds.push(b.id);
-      }
+      if(b.date === today) stats[b.agentId].todayComm += commAmt; 
+      else { stats[b.agentId].dueComm += commAmt; stats[b.agentId].dueBetIds.push(b.id); }
     }
   });
 
@@ -532,9 +556,7 @@ function renderSettlement() {
           <td style="color:#fc8181;font-weight:bold;">${fmtINR(s.dueComm)}</td>
           <td>
             <button class="btn btn-gold btn-sm" ${s.dueComm > 0 ? '' : 'disabled style="opacity:0.4;cursor:not-allowed;"'} 
-                    onclick="settleAgentCommission('${agId}')">
-              ✅ Settle ₹${s.dueComm.toFixed(2)}
-            </button>
+                    onclick="settleAgentCommission('${agId}')">✅ Settle ₹${s.dueComm.toFixed(2)}</button>
           </td>
         </tr>`;
     }
@@ -553,37 +575,23 @@ async function settleAgentCommission(agId) {
   
   const btn = event.currentTarget;
   const originalText = btn.innerHTML;
-  btn.innerHTML = 'Settling...';
-  btn.disabled = true;
+  btn.innerHTML = 'Settling...'; btn.disabled = true;
 
   try {
-    let batch = db.batch();
-    let count = 0;
-    
-    // Process batches of 500 (Firestore limit)
+    let batch = db.batch(); let count = 0;
     for (let i = 0; i < dueBetIds.length; i++) {
       const betRef = db.collection('bets').doc(dueBetIds[i]);
       batch.update(betRef, { settled: true, settledAt: new Date().toISOString() });
       count++;
-      
-      if (count === 500) {
-        await batch.commit();
-        batch = db.batch();
-        count = 0;
-      }
+      if (count === 500) { await batch.commit(); batch = db.batch(); count = 0; }
     }
-    if (count > 0) {
-      await batch.commit();
-    }
-    
+    if (count > 0) await batch.commit();
     toast('Commission Settled Successfully!', 'success');
   } catch (err) {
     toast('Error settling: ' + err.message, 'error');
-    btn.innerHTML = originalText;
-    btn.disabled = false;
+    btn.innerHTML = originalText; btn.disabled = false;
   }
 }
-// ------------------------------------------------
 
 function filterBets(){renderBetsTable();}
 function renderBetsTable(){
@@ -598,13 +606,7 @@ function renderBetsTable(){
   if(qC) b=b.filter(x=>(x.customerName||'').toLowerCase().includes(qC));
   if(qD) b=b.filter(x=>(x.date||'').includes(qD));
   if(qT) b=b.filter(x=>x.type===qT);
-  if(qN){
-    b=b.filter(x=>{
-      if(x.type==='number'&&String(x.number)===qN) return true;
-      if(x.type==='harup'&&String(x.harup)===qN) return true;
-      return false;
-    });
-  }
+  if(qN){b=b.filter(x=>{if(x.type==='number'&&String(x.number)===qN) return true;if(x.type==='harup'&&String(x.harup)===qN) return true;return false;});}
 
   document.getElementById('bets-loading').style.display='none';
   document.getElementById('bets-count-label').textContent=b.length;
@@ -621,13 +623,9 @@ function renderBetsTable(){
       agentTotals[aName] += (parseFloat(x.amount)||0);
     });
     let sumHtml = '';
-    for(const [name, amt] of Object.entries(agentTotals)) {
-      sumHtml += `<div class="summary-item"><span>👤 ${name}</span><span style="color:#f0b429;font-weight:bold;">${fmtINR(amt)}</span></div>`;
-    }
+    for(const [name, amt] of Object.entries(agentTotals)) { sumHtml += `<div class="summary-item"><span>👤 ${name}</span><span style="color:#f0b429;font-weight:bold;">${fmtINR(amt)}</span></div>`; }
     document.getElementById('bets-summary-content').innerHTML = sumHtml;
-  } else {
-    sumBox.style.display = 'none';
-  }
+  } else { sumBox.style.display = 'none'; }
 
   const tbl=document.getElementById('bets-table'), empty=document.getElementById('bets-empty');
   if(!b.length){tbl.style.display='none';empty.style.display='flex';return;}
