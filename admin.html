@@ -4,806 +4,1041 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>UP Darbar - Admin Panel</title>
+<title>UP Darbar — Admin</title>
 <link rel="stylesheet" href="style.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<style>
-.live-header{background:#111;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;}
-.live-clock-time{font-size:16px;color:#d4af37;font-family:'Orbitron',monospace;letter-spacing:1px;}
-.live-clock-date{font-size:12px;color:#aaa;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;}
-.s-input{flex:1;min-width:140px;padding:9px 12px;background:#1c2130;border:1px solid #333;color:#fff;border-radius:6px;font-size:13px;outline:none;}
-.s-input:focus{border-color:#d4af37;}
-.s-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.win-badge{background:rgba(104,211,145,.2);color:#68d391;font-size:11px;padding:2px 8px;border-radius:4px;}
-.badge-g{background:#276749;color:#9ae6b4;padding:2px 8px;border-radius:4px;font-size:11px;}
-.badge-r{background:#742a2a;color:#fc8181;padding:2px 8px;border-radius:4px;font-size:11px;}
-.agent-card{background:var(--bg-card,#161a22);border:1px solid #252b38;padding:16px;border-radius:10px;display:flex;gap:15px;}
-.agent-card-img{width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid #444;}
-.agent-card-info{flex:1;}
-.agent-card-name{font-weight:700;font-size:16px;color:#f0b429;}
-.agent-card-mobile{font-family:monospace;color:#aaa;font-size:13px;margin-top:3px;}
-.risk-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:6px;background:#161a22;border:1px solid #252b38;}
-.risk-row.best-pick{background:rgba(104,211,145,.12);border:1px solid #38a169;}
-.risk-row.mid-pick{background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.2);}
-.risk-row.danger-pick{background:rgba(229,62,62,.08);border:1px solid rgba(229,62,62,.2);}
-.risk-num{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;min-width:42px;text-align:center;padding:4px 8px;border-radius:6px;}
-.risk-info{flex:1;}
-.risk-info .ri-top{font-size:12px;color:#aaa;}
-.risk-info .ri-bot{font-size:13px;font-weight:700;}
-.risk-payout{text-align:right;min-width:80px;}
-.risk-payout .rp-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;}
-.risk-payout .rp-val{font-size:15px;font-weight:700;}
-.zero-tags{display:flex;flex-wrap:wrap;gap:5px;padding:8px 0;}
-.summary-box {background: rgba(240, 180, 41, 0.1); border: 1px solid rgba(240, 180, 41, 0.4); padding: 12px; border-radius: 8px; margin-bottom: 15px;}
-.summary-box h4 {margin:0 0 10px 0; color: #f0b429; font-size:14px;}
-.summary-item {display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.1);padding:4px 0;font-size:13px;}
-</style>
+<script src="common.js"></script>
 </head>
 <body>
 
-<div id="login-page" class="login-page">
+<!-- LOGIN -->
+<div id="LP" class="login-page">
   <div class="login-box">
-    <div class="login-logo" style="color:#f0b429;font-size:26px;font-weight:800;letter-spacing:2px;margin-bottom:8px;">UP DARBAR</div>
-    <h2 class="login-title">Admin Login</h2>
-    <p class="login-subtitle">Super Admin Access Only</p>
-    <div id="login-error" class="alert alert-error" style="display:none;text-align:left;"></div>
-    <div class="form-group"><label class="form-label">Mobile Number</label><input type="tel" id="login-mobile" class="form-input" placeholder="9876543210" maxlength="10"/></div>
-    <div class="form-group"><label class="form-label">Password</label><input type="password" id="login-password" class="form-input" placeholder="Enter password"/></div>
-    <button class="btn btn-gold btn-full btn-lg" onclick="adminLogin()" id="login-btn">LOGIN</button>
-    <p style="font-size:12px;color:#666;margin-top:16px;">Default: <strong style="color:#f0b429">9999999999</strong> / <strong style="color:#f0b429">admin123</strong></p>
-    <p style="margin-top:8px;"><a href="index.html" style="color:#666;font-size:12px;">← Back to Home</a></p>
+    <div class="llogo">UP DARBAR</div>
+    <h2 class="ltitle">Admin Login</h2>
+    <p class="lsub">Super Admin Access</p>
+    <div id="lerr" class="alert alert-e" style="display:none;text-align:left"></div>
+    <div class="fg"><label class="fl">Mobile</label><input type="tel" id="lm" class="fi" placeholder="9876543210" maxlength="10"/></div>
+    <div class="fg"><label class="fl">Password</label><input type="password" id="lp" class="fi" placeholder="Password"/></div>
+    <button class="btn btn-gold btn-full btn-lg" onclick="doLogin()" id="lbtn">LOGIN</button>
+    <p style="font-size:11px;color:var(--text3);margin-top:12px">Default: <b style="color:var(--gold)">9999999999</b> / <b style="color:var(--gold)">admin123</b></p>
+    <p style="margin-top:6px"><a href="index.html" style="color:var(--text3);font-size:11px">← Home</a></p>
   </div>
 </div>
 
-<div id="admin-app" style="display:none;">
-
+<!-- APP -->
+<div id="APP" style="display:none">
 <nav class="navbar">
-  <div style="display:flex;align-items:center;gap:12px;">
+  <div style="display:flex;align-items:center;gap:10px">
     <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
-    <div class="nav-brand">UP Darbar <span>Super Admin</span></div>
+    <div class="nav-brand">UP DARBAR <small>Super Admin</small></div>
   </div>
   <div class="nav-links">
-    <span style="font-size:12px;color:#f0b429;" id="nav-admin-name"></span>
-    <a href="index.html" class="nav-btn outline">Home</a>
-    <button class="nav-btn danger" onclick="adminLogout()">Logout</button>
+    <span id="aname" style="font-size:11px;color:var(--gold)"></span>
+    <a href="index.html" class="nb nb-out">Home</a>
+    <button class="nb nb-red" onclick="doLogout()">Logout</button>
   </div>
 </nav>
-
-<div class="live-header">
-  <div id="live-date" class="live-clock-date">--</div>
-  <div id="dash-time" class="live-clock-time">--:--:--</div>
-</div>
+<div class="lbar"><div id="lbd" class="lbd">--</div><div id="lbt" class="lbt">--:--:--</div></div>
 
 <div class="app-layout">
-
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-section">
-    <div class="sidebar-label">Main</div>
-    <button class="sidebar-link active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="sidebar-icon">📊</span> Dashboard</button>
-    <button class="sidebar-link" onclick="showPage('number')" id="nav-number"><span class="sidebar-icon">🎯</span> Open & Schedule</button>
-    <button class="sidebar-link" onclick="showPage('results')" id="nav-results"><span class="sidebar-icon">📅</span> Results Hist</button>
-  </div>
-  <div class="sidebar-section">
-    <div class="sidebar-label">Bets & Accounts</div>
-    <button class="sidebar-link" onclick="showPage('bets')" id="nav-bets"><span class="sidebar-icon">💰</span> Bet Monitor</button>
-    <button class="sidebar-link" onclick="showPage('settlement')" id="nav-settlement"><span class="sidebar-icon">💸</span> Comm. Settlement</button>
-    <button class="sidebar-link" onclick="showPage('risk')" id="nav-risk"><span class="sidebar-icon">📋</span> Risk Management</button>
-    <button class="sidebar-link" onclick="showPage('reports')" id="nav-reports"><span class="sidebar-icon">📈</span> Reports</button>
-  </div>
-  <div class="sidebar-section">
-    <div class="sidebar-label">System</div>
-    <button class="sidebar-link" onclick="showPage('agents')" id="nav-agents"><span class="sidebar-icon">👥</span> Agents</button>
-    <button class="sidebar-link" onclick="showPage('settings')" id="nav-settings"><span class="sidebar-icon">⚙️</span> Settings</button>
-    <button class="sidebar-link" onclick="showPage('backup')" id="nav-backup"><span class="sidebar-icon">💾</span> Backup</button>
-  </div>
+  <div class="sidebar-label" style="margin-top:8px">Main</div>
+  <button class="slink active" onclick="SP('dash')" id="nav-dash"><span class="si">📊</span>Dashboard</button>
+  <button class="slink" onclick="SP('opennum')" id="nav-opennum"><span class="si">🎯</span>Open Number</button>
+  <button class="slink" onclick="SP('results')" id="nav-results"><span class="si">📅</span>Results</button>
+  <button class="slink" onclick="SP('schedule')" id="nav-schedule"><span class="si">⏰</span>Schedule</button>
+  <div class="sidebar-label">Bets</div>
+  <button class="slink" onclick="SP('bets')" id="nav-bets"><span class="si">💰</span>Live Bets</button>
+  <button class="slink" onclick="SP('risk')" id="nav-risk"><span class="si">📋</span>Risk Summary</button>
+  <button class="slink" onclick="SP('agentrpt')" id="nav-agentrpt"><span class="si">👤</span>Agent Reports</button>
+  <button class="slink" onclick="SP('reports')" id="nav-reports"><span class="si">📈</span>Reports</button>
+  <div class="sidebar-label">System</div>
+  <button class="slink" onclick="SP('agents')" id="nav-agents"><span class="si">👥</span>Agents</button>
+  <button class="slink" onclick="SP('commission')" id="nav-commission"><span class="si">💸</span>Commission Settle</button>
+  <button class="slink" onclick="SP('settings')" id="nav-settings"><span class="si">⚙️</span>Settings</button>
+  <button class="slink" onclick="SP('backup')" id="nav-backup"><span class="si">💾</span>Backup</button>
 </div>
 
-<div class="page-content">
+<div class="page-content" id="PC">
 
-<div id="page-dashboard">
-  <div class="section-header"><h2 class="section-title">📊 Dashboard</h2></div>
-  <div class="grid-4" style="margin-bottom:18px;">
-    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="d-today-num">--</div><div class="stat-label">Today Number</div></div>
-    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="d-today-harup" style="color:#63b3ed;">--</div><div class="stat-label">Today Harup</div></div>
-    <div class="stat-card"><div class="stat-icon">🎲</div><div class="stat-value" id="d-bets">0</div><div class="stat-label">Bets Today</div></div>
-    <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="d-amount" style="font-size:17px;">₹0</div><div class="stat-label">Play Amount Today</div></div>
+<!-- DASHBOARD -->
+<div id="pg-dash">
+  <div class="sh"><h2 class="st">📊 Dashboard</h2><span id="dupd" style="font-size:11px;color:var(--text3)"></span></div>
+  <div class="g4" style="margin-bottom:12px">
+    <div class="sc"><div class="sic">🎯</div><div class="sv" id="dnum">--</div><div class="sl">Today's Number</div></div>
+    <div class="sc"><div class="sic">👥</div><div class="sv" id="dagents">0</div><div class="sl">Total Agents</div></div>
+    <div class="sc"><div class="sic">🎲</div><div class="sv" id="dbets">0</div><div class="sl">Bets Today</div></div>
+    <div class="sc"><div class="sic">💰</div><div class="sv" id="damt" style="font-size:16px">₹0</div><div class="sl">Play Amount Today</div></div>
   </div>
-  <div class="grid-3" style="margin-bottom:18px;">
-    <div class="stat-card"><div class="stat-icon">💸</div><div class="stat-value" id="d-commission" style="font-size:17px;">₹0</div><div class="stat-label">Commission Given</div></div>
-    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="d-agents">0</div><div class="stat-label">Total Agents</div></div>
-    <div class="card card-gold" style="padding:16px;text-align:center;">
-      <div class="card-title" style="justify-content:center;font-size:12px;">⏱️ Num Opens To Public In</div>
-      <div class="countdown" id="d-countdown">--:--:--</div>
+  <div class="g3" style="margin-bottom:12px">
+    <div class="sc"><div class="sic">💸</div><div class="sv" id="dcomm" style="font-size:16px">₹0</div><div class="sl">Commission Today</div></div>
+    <div class="sc"><div class="sic">⏰</div><div class="sv" id="dnext">--</div><div class="sl">Next Scheduled</div></div>
+    <div class="card card-g" style="padding:14px;text-align:center">
+      <div class="ctitle" style="justify-content:center;font-size:11px">⏱️ Opens To Public In</div>
+      <div class="countdown" id="dcd">--:--:--</div>
     </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ctitle" style="margin-bottom:8px">⚡ Live Bet Feed <span class="ldot"></span><span style="font-size:10px;color:var(--text3);font-family:Inter">Real-time updates</span></div>
+    <div id="dfeed"><div class="loading"><div class="spinner"></div>Waiting for bets...</div></div>
   </div>
   <div class="card">
-    <div class="card-title">⚡ Quick Actions</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-gold" onclick="showPage('number')">🎯 Open & Schedule</button>
-      <button class="btn btn-blue" onclick="showPage('risk')">📋 Risk Management</button>
-      <button class="btn btn-green" onclick="showPage('settlement')">💸 Settlements</button>
+    <div class="ctitle">Quick Actions</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="SP('opennum')">🎯 Open Number</button>
+      <button class="btn btn-blue" onclick="SP('risk')">📋 Risk Summary</button>
+      <button class="btn btn-green" onclick="SP('agents')">👥 Agents</button>
+      <button class="btn btn-orange" onclick="SP('commission')">💸 Commission Settle</button>
+      <button class="btn btn-purple" onclick="SP('agentrpt')">👤 Agent Reports</button>
     </div>
   </div>
 </div>
 
-<div id="page-number" style="display:none;">
-  <div class="section-header"><h2 class="section-title">🎯 Open & Schedule Results</h2></div>
-  <div style="background:rgba(240,180,41,.08);border-left:4px solid #f0b429;padding:12px 16px;margin-bottom:18px;border-radius:6px;font-size:13px;">
-    💡 <strong>Schedule Info:</strong> Agar aap aaj ka result daalna chahte hain toh <strong>Date</strong> khaali chhod dein (wo automatically aaj ki le lega). Agar aage ki date ka schedule karna hai toh pehle Date select karein.
-  </div>
-  <div class="grid-2">
-    <div class="card card-gold">
-      <div class="card-title">Schedule Number</div>
-      <div class="form-group"><label class="form-label">Select Date (Optional)</label><input type="date" id="open-num-date" class="form-input"/></div>
-      <div class="form-group"><label class="form-label">Number (00-99)</label><input type="number" id="open-num" class="form-input" min="0" max="99" placeholder="45"/></div>
-      <div class="form-group"><label class="form-label">Open Time (Public visibility)</label><input type="time" id="open-num-time" class="form-input"/></div>
-      <button class="btn btn-gold btn-full" onclick="openResultData('number')" style="margin-top:12px;">✅ Save & Schedule Number</button>
+<!-- OPEN NUMBER -->
+<div id="pg-opennum" style="display:none">
+  <div class="sh"><h2 class="st">🎯 Open Number</h2></div>
+  <div class="g2">
+    <div class="card card-g">
+      <div class="ctitle">Open Today's Number</div>
+      <div class="alert alert-i" style="margin-bottom:12px;font-size:12px">Admin ko turant dikhega. Public/Agent ko open time ke baad dikhega (6 PM default).</div>
+      <div class="fg"><label class="fl">Number (00–99) *</label><input type="number" id="onn" class="fi" min="0" max="99" placeholder="45"/></div>
+      <div class="fg"><label class="fl">Open Time (Optional — default 6:00 PM)</label><input type="time" id="ont" class="fi"/></div>
+      <button class="btn btn-gold btn-full btn-lg" onclick="openNumber()">✅ Save & Open Number</button>
     </div>
-    
-    <div class="card" style="border: 1px solid rgba(99,179,237,0.4);">
-      <div class="card-title" style="color:#63b3ed;">Schedule Harup</div>
-      <div class="form-group"><label class="form-label">Select Date (Optional)</label><input type="date" id="open-harup-date" class="form-input"/></div>
-      <div class="form-group"><label class="form-label">Harup (0-9)</label><input type="number" id="open-harup" class="form-input" min="0" max="9" placeholder="4"/></div>
-      <div class="form-group"><label class="form-label">Open Time (Public visibility)</label><input type="time" id="open-harup-time" class="form-input"/></div>
-      <button class="btn btn-blue btn-full" onclick="openResultData('harup')" style="margin-top:12px;">✅ Save & Schedule Harup</button>
-    </div>
+    <div class="card"><div class="ctitle">Recent Results</div><div id="rrecent"><div class="loading"><div class="spinner"></div></div></div></div>
   </div>
 </div>
 
-<div id="page-results" style="display:none;">
-  <div class="section-header"><h2 class="section-title">📅 Results History</h2><button class="btn btn-gold btn-sm" onclick="exportResultsCSV()">⬇ Export CSV</button></div>
-  <div class="card" style="padding:0;overflow:hidden;">
-    <div id="results-loading" class="loading"><div class="spinner"></div>Loading...</div>
-    <div style="overflow-x:auto;">
-      <table class="history-table" id="results-table" style="display:none;">
-        <thead><tr><th>Date</th><th>Number</th><th>Harup</th><th>Num Time</th><th>Harup Time</th><th>Actions</th></tr></thead>
-        <tbody id="results-body"></tbody>
-      </table>
-    </div>
+<!-- RESULTS -->
+<div id="pg-results" style="display:none">
+  <div class="sh">
+    <h2 class="st">📅 All Results</h2>
+    <button class="btn btn-gold btn-sm" onclick="exportCSV(allResults.map(r=>({Date:r.date,Number:r.number,Word:r.numberWord,Time:r.time})),'results')">⬇ CSV</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="rload" class="loading"><div class="spinner"></div></div>
+    <div style="overflow-x:auto"><table class="tbl" id="rtbl" style="display:none"><thead><tr><th>Date</th><th>Number</th><th>Word</th><th>Time</th><th>Actions</th></tr></thead><tbody id="rbody"></tbody></table></div>
   </div>
 </div>
 
-<div id="page-bets" style="display:none;">
-  <div class="section-header"><h2 class="section-title">💰 Live Bet Monitor</h2><button class="btn btn-gold btn-sm" onclick="exportBetsCSV()">⬇ Export CSV</button></div>
-  
-  <div class="card" style="margin-bottom:14px;">
-    <div class="s-row">
-      <input type="text" id="bs-agent" class="s-input" placeholder="🔍 Agent name..." oninput="filterBets()"/>
-      <input type="text" id="bs-customer" class="s-input" placeholder="🔍 Customer name..." oninput="filterBets()"/>
-      <input type="text" id="bs-num" class="s-input" placeholder="Search Number/Harup..." oninput="filterBets()"/>
-      <input type="text" id="bs-date" class="s-input" placeholder="DD-MM-YYYY..." oninput="filterBets()"/>
-      <select id="bs-type" class="s-input" onchange="filterBets()" style="max-width:160px;">
-        <option value="">All (Number+Harup)</option>
+<!-- SCHEDULE -->
+<div id="pg-schedule" style="display:none">
+  <div class="sh"><h2 class="st">⏰ Auto Schedule</h2></div>
+  <div class="g2">
+    <div class="card card-g">
+      <div class="ctitle">Schedule Future Number</div>
+      <div class="fg"><label class="fl">Number (00–99) *</label><input type="number" id="scn" class="fi" min="0" max="99" placeholder="45"/></div>
+      <div class="fg"><label class="fl">Date *</label><input type="date" id="scd" class="fi"/></div>
+      <div class="fg"><label class="fl">Time *</label><input type="time" id="sct" class="fi"/></div>
+      <button class="btn btn-gold btn-full" onclick="schedNum()">📅 Set Schedule</button>
+    </div>
+    <div class="card"><div class="ctitle">Pending Schedules</div><div id="sclist"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>
+</div>
+
+<!-- LIVE BETS -->
+<div id="pg-bets" style="display:none">
+  <div class="sh">
+    <h2 class="st">💰 Live Bet Monitor</h2>
+    <button class="btn btn-gold btn-sm" onclick="exportBetsCSV()">⬇ CSV</button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="sbar">
+      <input type="text" id="bfag" class="sinput" placeholder="Agent name..." oninput="filterBets()"/>
+      <input type="text" id="bfcu" class="sinput" placeholder="Customer name..." oninput="filterBets()"/>
+      <input type="text" id="bfnu" class="sinput" placeholder="Number (0-99)..." oninput="filterBets()"/>
+      <input type="text" id="bfda" class="sinput" placeholder="Date DD-MM-YYYY..." oninput="filterBets()"/>
+      <select id="bfty" class="sinput" onchange="filterBets()" style="max-width:145px">
+        <option value="">All Types</option>
         <option value="number">Numbers Only</option>
         <option value="harup">Harups Only</option>
       </select>
     </div>
-    <div style="font-size:12px;color:#9aa0b0;">
-      Showing: <strong id="bets-count-label" style="color:#f0b429;">0</strong> bets
-      | Filter Total: <strong id="bets-today-total" style="color:#68d391;">₹0</strong>
+    <div style="font-size:11px;color:var(--text2)">
+      Showing <strong id="bcnt" style="color:var(--gold)">0</strong> bets |
+      Today Amount: <strong id="bamt" style="color:#68d391">₹0</strong> |
+      Commission: <strong id="bcom" style="color:#fc8181">₹0</strong>
     </div>
   </div>
-
-  <div id="bets-summary-box" class="summary-box" style="display:none;">
-    <h4>📊 Agent Wise Summary (Based on current filter)</h4>
-    <div id="bets-summary-content" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;"></div>
-  </div>
-
-  <div class="card" style="padding:0;overflow:hidden;">
-    <div id="bets-loading" class="loading"><div class="spinner"></div>Loading bets...</div>
-    <div style="overflow-x:auto;">
-      <table class="history-table" id="bets-table" style="display:none;min-width:700px;">
-        <thead><tr><th>Agent</th><th>Customer</th><th>Bet On</th><th>Play ₹</th><th>Win (If Pass)</th><th>Comm.</th><th>Date & Time</th></tr></thead>
-        <tbody id="bets-body"></tbody>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="bload" class="loading"><div class="spinner"></div>Loading bets...</div>
+    <div style="overflow-x:auto">
+      <table class="tbl" id="btbl" style="display:none;min-width:820px">
+        <thead><tr><th>Agent</th><th>Customer</th><th>Type</th><th>Bet On</th><th>Amount</th><th>Win (If Pass)</th><th>Commission</th><th>Date</th><th>Time</th></tr></thead>
+        <tbody id="bbody"></tbody>
       </table>
     </div>
-    <div id="bets-empty" class="empty-state" style="display:none;padding:40px;"><div class="empty-state-icon">🎲</div><div class="empty-state-text">No bets found</div></div>
+    <div id="bempty" class="empty-st" style="display:none"><div class="ei">🎲</div><div class="et">No bets found</div></div>
   </div>
 </div>
 
-<div id="page-settlement" style="display:none;">
-  <div class="section-header"><h2 class="section-title">💸 Commission Settlement</h2></div>
-  <div style="background:rgba(240,180,41,.08);border-left:4px solid #f0b429;padding:12px 16px;margin-bottom:18px;border-radius:6px;font-size:13px;">
-    💡 <strong style="color:#f0b429;">Note:</strong> Agent ka <strong>Aaj Ka Commission</strong> yaha display hoga, par <strong>Settle (Clear) karne ke liye</strong> wo agle din (day-end ke baad) hi available hoga taaki sab safe rahe.
+<!-- RISK -->
+<div id="pg-risk" style="display:none">
+  <div class="sh">
+    <h2 class="st">📋 Risk Management</h2>
+    <button class="btn btn-gold" onclick="loadRisk()">🔄 Refresh</button>
   </div>
-  <div class="card" style="padding:0;overflow:hidden;">
-    <div style="overflow-x:auto;">
-      <table class="history-table" style="min-width:600px;">
-        <thead>
-          <tr>
-            <th>Agent Name & Mobile</th>
-            <th>Today's Comm. <br><span style="font-size:10px;color:#aaa;">(Not Settlable Yet)</span></th>
-            <th>Previous Due <br><span style="font-size:10px;color:#68d391;">(Ready to Settle)</span></th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="settlement-body">
-          <tr><td colspan="4" class="text-center">Loading settlements...</td></tr>
-        </tbody>
+  <div class="alert alert-w" style="margin-bottom:12px;font-size:12px">
+    🟢 <b>Green</b>=Safest (Kam payout) &nbsp;|&nbsp; 🟡 <b>Gold</b>=Medium risk &nbsp;|&nbsp; 🔴 <b>Red</b>=High payout (Risky)
+  </div>
+  <div class="card" id="rtotals" style="margin-bottom:12px;display:none">
+    <div class="ctitle">Today's Summary</div>
+    <div class="g4">
+      <div class="sc"><div class="sv" id="rtbt">0</div><div class="sl">Bets</div></div>
+      <div class="sc"><div class="sv" id="rtam" style="font-size:15px">₹0</div><div class="sl">Play Amount</div></div>
+      <div class="sc"><div class="sv" id="rtcm" style="font-size:15px;color:#fc8181">₹0</div><div class="sl">Commission</div></div>
+      <div class="sc"><div class="sv" id="rtmx" style="font-size:15px;color:#fc8181">₹0</div><div class="sl">Max Risk Payout</div></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="ctitle" style="color:#68d391">🟢 0-Bet Numbers — Safe to Open (0 Loss)</div>
+        <div id="rzeronums" style="display:flex;flex-wrap:wrap;gap:4px;min-height:24px"></div>
+      </div>
+      <div class="card"><div class="ctitle">🔢 Number Liability (Safest First)</div><div id="ranums" style="max-height:440px;overflow-y:auto"></div></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="ctitle" style="color:#68d391">🟢 0-Bet Harups — Safe to Open (0 Loss)</div>
+        <div id="rzeroh" style="display:flex;flex-wrap:wrap;gap:4px;min-height:24px"></div>
+      </div>
+      <div class="card"><div class="ctitle">🅰️ Harup Liability (Safest First)</div><div id="raharups" style="max-height:440px;overflow-y:auto"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENT REPORTS -->
+<div id="pg-agentrpt" style="display:none">
+  <div class="sh"><h2 class="st">👤 Agent-wise Reports</h2></div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="sbar">
+      <select id="arsel" class="sinput" onchange="loadAR()" style="flex:2;min-width:200px"><option value="">-- Select Agent --</option></select>
+      <input type="text" id="arfrom" class="sinput" placeholder="From DD-MM-YYYY" oninput="loadAR()"/>
+      <input type="text" id="arto" class="sinput" placeholder="To DD-MM-YYYY" oninput="loadAR()"/>
+    </div>
+  </div>
+  <div id="arsumm" class="g4" style="margin-bottom:10px;display:none">
+    <div class="sc"><div class="sv" id="arbt">0</div><div class="sl">Bets</div></div>
+    <div class="sc"><div class="sv" id="aram" style="font-size:15px">₹0</div><div class="sl">Amount</div></div>
+    <div class="sc"><div class="sv" id="arcm" style="font-size:15px;color:#68d391">₹0</div><div class="sl">Commission Earned</div></div>
+    <div class="sc"><div class="sv" id="arwn" style="font-size:15px;color:#fc8181">₹0</div><div class="sl">Win Liability</div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="arload" class="empty-st"><div class="ei">👤</div><div class="et">Select agent to view report</div></div>
+    <div style="overflow-x:auto">
+      <table class="tbl" id="artbl" style="display:none;min-width:620px">
+        <thead><tr><th>Date</th><th>Customer</th><th>Type</th><th>Bet On</th><th>Amount</th><th>Win</th><th>Comm</th><th>Time</th></tr></thead>
+        <tbody id="arbody"></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<div id="page-risk" style="display:none;">
-  <div class="section-header"><h2 class="section-title">📋 Risk Management</h2><button class="btn btn-gold" onclick="loadRiskSummary()">🔄 Refresh</button></div>
-  <div style="background:rgba(104,211,145,.08);border-left:4px solid #38a169;padding:12px 16px;margin-bottom:18px;border-radius:6px;font-size:13px;">
-    💡 <strong style="color:#68d391;">Green</strong> = Sabse kam payout (safe) | <strong style="color:#f0b429;">Gold</strong> = Medium risk | <strong style="color:#fc8181;">Red</strong> = High payout (risky)
-  </div>
-
-  <div id="risk-totals" class="card" style="margin-bottom:16px;display:none;">
-    <div class="card-title">Today's Summary</div>
-    <div class="grid-4">
-      <div class="stat-card"><div class="stat-value" id="rt-bets">0</div><div class="stat-label">Total Bets</div></div>
-      <div class="stat-card"><div class="stat-value" id="rt-amount" style="font-size:17px;">₹0</div><div class="stat-label">Total Play</div></div>
-      <div class="stat-card"><div class="stat-value" id="rt-comm" style="font-size:17px;color:#fc8181;">₹0</div><div class="stat-label">Commission</div></div>
-      <div class="stat-card"><div class="stat-value" id="rt-max-payout" style="font-size:17px;color:#fc8181;">₹0</div><div class="stat-label">Max Risk</div></div>
+<!-- REPORTS -->
+<div id="pg-reports" style="display:none">
+  <div class="sh"><h2 class="st">📈 Reports</h2></div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ctitle">Generate Report</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="genRpt('daily')">📅 Daily</button>
+      <button class="btn btn-blue" onclick="genRpt('weekly')">📆 Weekly (7d)</button>
+      <button class="btn btn-green" onclick="genRpt('monthly')">🗓 Monthly (30d)</button>
     </div>
   </div>
+  <div id="rptout"></div>
+</div>
 
-  <div class="grid-2">
-    <div>
-      <div class="card" style="margin-bottom:14px;"><div class="card-title" style="color:#68d391;">🟢 0-Bet Numbers (0 Loss)</div><div id="risk-zero-nums" class="zero-tags"></div></div>
-      <div class="card"><div class="card-title">🔢 Number Liability</div><div id="risk-active-nums" style="max-height:420px;overflow-y:auto;"></div></div>
+<!-- AGENTS -->
+<div id="pg-agents" style="display:none">
+  <div class="sh">
+    <h2 class="st">👥 Agent Management</h2>
+    <button class="btn btn-gold" onclick="openM('mag');resetAF()">+ New Agent</button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="sbar">
+      <input type="text" id="agq" class="sinput" placeholder="🔍 Name, mobile, Aadhaar..." oninput="filterAgents()"/>
+      <select id="agst" class="sinput" onchange="filterAgents()" style="max-width:140px">
+        <option value="">All Status</option><option value="active">Active</option><option value="blocked">Blocked</option>
+      </select>
     </div>
-    <div>
-      <div class="card" style="margin-bottom:14px;"><div class="card-title" style="color:#68d391;">🟢 0-Bet Harups (0 Loss)</div><div id="risk-zero-harups" class="zero-tags"></div></div>
-      <div class="card"><div class="card-title">🅰️ Harup Liability</div><div id="risk-active-harups" style="max-height:420px;overflow-y:auto;"></div></div>
+  </div>
+  <div id="agrid" class="gauto"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+</div>
+
+<!-- COMMISSION SETTLE -->
+<div id="pg-commission" style="display:none">
+  <div class="sh"><h2 class="st">💸 Commission Settlement</h2></div>
+  <div class="alert alert-i" style="margin-bottom:12px;font-size:12px">
+    Agent ka commission settle karein. Settle karne ke baad agent ka commission balance 0 ho jayega. Daily / Monthly kisi bhi period ke liye settle kar sakte hain.
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ctitle">Quick Settle</div>
+      <div class="fg">
+        <label class="fl">Select Agent</label>
+        <select id="cssel" class="fsel" onchange="loadCommSummary()"><option value="">-- Select Agent --</option></select>
+      </div>
+      <div class="fg">
+        <label class="fl">Period</label>
+        <select id="csperiod" class="fsel" onchange="loadCommSummary()">
+          <option value="today">Today</option>
+          <option value="week">This Week (7 days)</option>
+          <option value="month">This Month (30 days)</option>
+          <option value="all">All Time (Unsettled)</option>
+        </select>
+      </div>
+      <div id="cssumm" style="display:none;margin-bottom:14px">
+        <div class="brow" style="margin-bottom:6px"><span>Total Bets</span><strong id="csbt" style="color:var(--gold)">0</strong></div>
+        <div class="brow" style="margin-bottom:6px"><span>Total Play Amount</span><strong id="csam" style="color:var(--gold)">₹0</strong></div>
+        <div class="brow" style="margin-bottom:6px"><span>Commission Earned</span><strong id="cscm" style="color:#68d391;font-size:16px">₹0</strong></div>
+        <div class="brow" style="margin-bottom:6px"><span>Already Settled</span><strong id="cssd" style="color:#fc8181">₹0</strong></div>
+        <div class="brow" style="background:rgba(240,180,41,.08);border:1px solid var(--borderg);border-radius:var(--rs)"><span style="font-weight:700">Pending Settlement</span><strong id="cspend" style="color:var(--gold);font-size:18px;font-family:Orbitron,monospace">₹0</strong></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Settlement Amount ₹</label>
+        <input type="number" id="csamount" class="fi" placeholder="Amount to settle" min="1"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Notes (Optional)</label>
+        <input type="text" id="csnotes" class="fi" placeholder="e.g. April week 1 settlement"/>
+      </div>
+      <button class="btn btn-orange btn-full btn-lg" onclick="settleCommission()">✅ Settle Commission</button>
     </div>
+    <div class="card">
+      <div class="ctitle">Settlement History</div>
+      <div id="cshistory"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+  </div>
+  <!-- All Agents Summary -->
+  <div class="card">
+    <div class="ctitle">All Agents — Pending Commission Summary</div>
+    <div id="allcsumm"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
-<div id="page-reports" style="display:none;">
-  <div class="section-header"><h2 class="section-title">📈 Reports</h2></div>
-  <div class="card" style="margin-bottom:18px;">
-    <div class="card-title">Generate Report</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-gold" onclick="generateReport('daily')">📅 Daily</button>
-      <button class="btn btn-blue" onclick="generateReport('weekly')">📆 Weekly</button>
-      <button class="btn btn-green" onclick="generateReport('monthly')">🗓 Monthly</button>
-    </div>
-  </div>
-  <div id="report-output"></div>
-</div>
-
-<div id="page-agents" style="display:none;">
-  <div class="section-header"><h2 class="section-title">👥 Agent Management</h2><button class="btn btn-gold" onclick="openModal('modal-agent')">+ New Agent</button></div>
-  <div class="card" style="margin-bottom:14px;"><input type="text" id="agent-search" class="s-input" style="width:100%;" placeholder="🔍 Search by name or mobile..." oninput="filterAgents()"/></div>
-  <div id="agents-grid" class="grid-auto"><div class="loading"><div class="spinner"></div>Loading agents...</div></div>
-</div>
-
-<div id="page-settings" style="display:none;">
-  <div class="section-header"><h2 class="section-title">⚙️ Settings</h2></div>
-  <div class="grid-2">
+<!-- SETTINGS -->
+<div id="pg-settings" style="display:none">
+  <div class="sh"><h2 class="st">⚙️ Settings</h2></div>
+  <div class="g2">
     <div>
-      <div class="card" style="margin-bottom:18px;">
-        <div class="card-title">Commission Rate</div>
-        <div class="form-group" style="max-width:240px;"><label class="form-label">Global Commission %</label><input type="number" id="commission-rate" class="form-input" min="1" max="50" value="10"/></div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ctitle">Commission Rate</div>
+        <div class="fg" style="max-width:220px"><label class="fl">Commission % (Default 10%)</label><input type="number" id="srate" class="fi" min="1" max="50" value="10"/></div>
         <button class="btn btn-gold btn-sm" onclick="saveSettings()">💾 Save</button>
       </div>
       <div class="card">
-        <div class="card-title">Change Admin Password</div>
-        <div class="form-group"><label class="form-label">New Password</label><input type="password" id="admin-new-pass" class="form-input" placeholder="Min 4 characters"/></div>
-        <button class="btn btn-red btn-sm" onclick="changeAdminPassword()">🔑 Update Password</button>
+        <div class="ctitle">Change Admin Password</div>
+        <div class="fg"><label class="fl">New Password</label><input type="password" id="spass" class="fi" placeholder="Min 4 characters"/></div>
+        <button class="btn btn-red btn-sm" onclick="changeAdminPwd()">🔑 Update</button>
       </div>
     </div>
   </div>
 </div>
 
-<div id="page-backup" style="display:none;">
-  <div class="section-header"><h2 class="section-title">💾 Backup & Export</h2></div>
-  <div class="grid-2">
-    <div class="card"><div class="card-title">Export Data</div><div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;"><button class="btn btn-gold" onclick="exportResultsCSV()">📥 Results CSV</button><button class="btn btn-blue" onclick="exportBetsCSV()">📥 All Bets CSV</button><button class="btn btn-green" onclick="exportAgentsCSV()">📥 Agents CSV</button><hr style="border-color:#333;"/><button class="btn btn-gray" onclick="exportAllJSON()">📥 Full Backup (JSON)</button></div></div>
-    <div class="card"><div class="card-title">Database Info</div><div style="margin-top:10px;"><div class="result-item"><span class="result-key">Results</span><span class="result-val" id="bi-results">-</span></div><div class="result-item"><span class="result-key">Bets</span><span class="result-val" id="bi-bets">-</span></div><div class="result-item"><span class="result-key">Agents</span><span class="result-val" id="bi-agents">-</span></div></div><button class="btn btn-outline btn-sm" style="margin-top:16px;width:100%;" onclick="loadDBInfo()">🔄 Refresh</button></div>
-  </div>
-</div>
-
-</div></div></div>
-
-<div id="modal-agent" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal('modal-agent')">
-  <div class="modal" style="max-width:500px;">
-    <div class="modal-title" id="agent-modal-title">Create Agent</div>
-    <input type="hidden" id="agent-edit-id"/>
-    <input type="hidden" id="agent-photo-b64"/>
-    <div class="grid-2" style="gap:15px;">
-      <div class="form-group"><label class="form-label">Full Name *</label><input type="text" id="agent-name" class="form-input" placeholder="Agent Name"/></div>
-      <div class="form-group"><label class="form-label">Mobile *</label><input type="tel" id="agent-mobile" class="form-input" placeholder="9876543210" maxlength="10"/></div>
-    </div>
-    <div class="grid-2" style="gap:15px;">
-      <div class="form-group">
-        <label class="form-label">Password *</label>
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="agent-password" class="form-input" placeholder="Password"/>
-          <button class="btn btn-gray btn-sm" onclick="document.getElementById('agent-password').value=genPwd()">Auto</button>
-        </div>
+<!-- BACKUP -->
+<div id="pg-backup" style="display:none">
+  <div class="sh"><h2 class="st">💾 Backup & Export</h2></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Export Data</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:6px">
+        <button class="btn btn-gold" onclick="exportCSV(allResults.map(r=>({Date:r.date,Number:r.number,Word:r.numberWord,Time:r.time})),'results')">📥 Results CSV</button>
+        <button class="btn btn-blue" onclick="exportBetsCSV()">📥 All Bets CSV</button>
+        <button class="btn btn-green" onclick="exportCSV(allAgents.map(a=>({Name:a.name,Mobile:a.mobile,Aadhaar:a.aadhaar||'',Address:a.address||'',Status:a.status||'active'})),'agents')">📥 Agents CSV</button>
+        <hr class="dv"/>
+        <button class="btn btn-gray" onclick="exportFullJSON()">📥 Full Backup JSON</button>
       </div>
-      <div class="form-group"><label class="form-label">Aadhar Number</label><input type="text" id="agent-aadhar" class="form-input" placeholder="1234 5678 9012" maxlength="14"/></div>
     </div>
-    <div class="form-group"><label class="form-label">Address</label><textarea id="agent-address" class="form-textarea" placeholder="e.g. Model Town, Sonipat" style="min-height:60px;"></textarea></div>
-    
-    <div class="form-group">
-      <label class="form-label">Agent Photo (Optional)</label>
-      <input type="file" id="agent-photo" accept="image/*" class="form-input" style="padding:5px;" onchange="compressAndSaveImage(event)"/>
-      <div style="font-size:11px;color:#888;margin-top:4px;">Photo will be auto-compressed before saving.</div>
-      <img id="agent-photo-preview" src="" style="display:none; width:60px; height:60px; object-fit:cover; border-radius:8px; margin-top:8px; border:1px solid #444;"/>
-    </div>
-
-    <div class="form-group"><label class="form-label">Status</label><select id="agent-status" class="form-select"><option value="active">Active</option><option value="blocked">Blocked</option></select></div>
-    <div class="modal-footer">
-      <button class="btn btn-gray" onclick="closeModal('modal-agent')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveAgent()">Save Agent</button>
+    <div class="card">
+      <div class="ctitle">Database Info</div>
+      <div style="margin-top:6px">
+        <div class="brow"><span>Results</span><strong id="bir">-</strong></div>
+        <div class="brow"><span>Bets</span><strong id="bib">-</strong></div>
+        <div class="brow"><span>Agents</span><strong id="bia">-</strong></div>
+        <div class="brow"><span>Settlements</span><strong id="bis">-</strong></div>
+        <div class="brow"><span>Last Backup</span><strong id="bil">Never</strong></div>
+      </div>
+      <button class="btn btn-gray btn-sm btn-full" style="margin-top:10px" onclick="loadDBInfo()">🔄 Refresh</button>
     </div>
   </div>
 </div>
 
-<div id="modal-edit-result" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal('modal-edit-result')">
+</div><!-- PC -->
+</div><!-- app-layout -->
+</div><!-- APP -->
+
+<!-- MODALS -->
+<!-- Agent Modal -->
+<div id="mag" class="moverlay" style="display:none" onclick="if(event.target===this)closeM('mag')">
   <div class="modal">
-    <div class="modal-title">Edit Result Data</div>
-    <input type="hidden" id="edit-result-id"/>
-    <div class="form-group"><label class="form-label">Number (0-99)</label><input type="number" id="edit-result-num" class="form-input"/></div>
-    <div class="form-group"><label class="form-label">Harup (0-9)</label><input type="number" id="edit-result-harup" class="form-input"/></div>
-    <div class="modal-footer"><button class="btn btn-gray" onclick="closeModal('modal-edit-result')">Cancel</button><button class="btn btn-gold" onclick="saveEditResult()">Update</button></div>
+    <div class="modal-title" id="agtitle">Create New Agent</div>
+    <input type="hidden" id="ageid"/>
+    <div class="g2">
+      <div class="fg"><label class="fl">Full Name *</label><input type="text" id="agname" class="fi" placeholder="Agent Full Name"/></div>
+      <div class="fg"><label class="fl">Mobile * (Login ID)</label><input type="tel" id="agmob" class="fi" placeholder="9876543210" maxlength="10"/></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Password *</label>
+      <div style="display:flex;gap:7px">
+        <input type="text" id="agpass" class="fi" placeholder="Set password"/>
+        <button class="btn btn-gray btn-sm" onclick="document.getElementById('agpass').value=genPwd()">Auto</button>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Aadhaar Number</label><input type="text" id="agaadh" class="fi" placeholder="XXXX XXXX XXXX" maxlength="14"/></div>
+      <div class="fg"><label class="fl">Status</label><select id="agstat" class="fsel"><option value="active">Active</option><option value="blocked">Blocked</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Address</label><textarea id="agaddr" class="fta" style="min-height:56px" placeholder="Full address..."></textarea></div>
+    <div class="fg">
+      <label class="fl">Photo (Optional)</label>
+      <input type="file" id="agphoto" class="fi" accept="image/*" onchange="prevPhoto()"/>
+      <img id="agphprev" class="pp" src="" alt=""/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeM('mag')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveAgent()">💾 Save Agent</button>
+    </div>
   </div>
 </div>
 
-<div id="toast-container" class="toast-container"></div>
+<!-- Edit Result Modal -->
+<div id="mer" class="moverlay" style="display:none" onclick="if(event.target===this)closeM('mer')">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title">Edit Result</div>
+    <input type="hidden" id="erid"/>
+    <div class="fg"><label class="fl">Number (0–99)</label><input type="number" id="ern" class="fi" min="0" max="99"/></div>
+    <div class="fg"><label class="fl">Date (DD-MM-YYYY)</label><input type="text" id="erd" class="fi" placeholder="DD-MM-YYYY"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeM('mer')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveEditRes()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- Agent Profile Modal -->
+<div id="map" class="moverlay" style="display:none" onclick="if(event.target===this)closeM('map')">
+  <div class="modal"><div class="modal-title">Agent Profile</div><div id="apbody"></div><div class="modal-footer"><button class="btn btn-gray" onclick="closeM('map')">Close</button></div></div>
+</div>
+
+<div id="twrap" class="twrap"></div>
 
 <script>
-const firebaseConfig={apiKey:"AIzaSyBklYTB9FOP13g-jKSUR7OSaRT4RLazw_Y",authDomain:"satta-28662.firebaseapp.com",projectId:"satta-28662",storageBucket:"satta-28662.firebasestorage.app",messagingSenderId:"930874157007",appId:"1:930874157007:web:f48410bce16c0f522e54ba"};
-if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-db.enablePersistence({synchronizeTabs:true}).catch(e=>console.warn(e));
+// ======================================================
+// ADMIN APP — Complete working system
+// ======================================================
+let cA=null, allBets=[], allAgents=[], allResults=[], allSettlements=[];
+let cS={commissionRate:10}, schedT=null;
 
-const NW={0:'Zero',1:'Ek',2:'Do',3:'Teen',4:'Char',5:'Paanch',6:'Chhe',7:'Saat',8:'Aath',9:'Nau',10:'Das',11:'Gyarah',12:'Barah',13:'Terah',14:'Chaudah',15:'Pandrah',16:'Solah',17:'Satrah',18:'Atharah',19:'Unnis',20:'Bees',21:'Ikkis',22:'Bais',23:'Teis',24:'Chaubis',25:'Pachis',26:'Chhabis',27:'Sattais',28:'Atthais',29:'Untis',30:'Tees',31:'Ikatees',32:'Battees',33:'Tentees',34:'Chautees',35:'Paintees',36:'Chhattees',37:'Saintees',38:'Adatees',39:'Untaalis',40:'Chalis',41:'Ikatalis',42:'Byalis',43:'Tentalis',44:'Chavalis',45:'Paintalis',46:'Chhiyalis',47:'Saintalis',48:'Adtalis',49:'Unnchas',50:'Pachas',51:'Ikkyavan',52:'Bavan',53:'Tirpan',54:'Chauvan',55:'Pachpan',56:'Chhappan',57:'Sattavan',58:'Athavan',59:'Unsath',60:'Saath',61:'Iksath',62:'Basath',63:'Tirsath',64:'Chausath',65:'Painsath',66:'Chhiyasath',67:'Sarsath',68:'Adsath',69:'Unhattar',70:'Sattar',71:'Ikahattar',72:'Bahattar',73:'Tihattar',74:'Chauhattar',75:'Pachhattar',76:'Chhihattar',77:'Sathattar',78:'Athhattar',79:'Unasi',80:'Assi',81:'Ikyasi',82:'Bayasi',83:'Tirasi',84:'Chaurasi',85:'Pachasi',86:'Chhiyasi',87:'Satasi',88:'Athasi',89:'Nabbay',90:'Nabbe',91:'Ikyanabbe',92:'Banabbe',93:'Tiranabbe',94:'Chaunabbe',95:'Pachanabbe',96:'Chhiyanabbe',97:'Satanabbe',98:'Athanabbe',99:'Ninyanabbe'};
-function gW(n){return NW[parseInt(n)]||n.toString();}
-function getNowIST(){return new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Kolkata"}));}
-function getToday(){const d=getNowIST();return`${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;}
-function getTimeStr(){return getNowIST().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});}
-function fmtINR(a){return'₹'+Number(a||0).toLocaleString('en-IN');}
-function fmtTime(ts){if(!ts)return"6:00 PM";const u=ts.toUpperCase();if(u.includes('AM')||u.includes('PM'))return ts;const[h,m]=ts.split(':');let hr=parseInt(h);const ap=hr>=12?'PM':'AM';hr=hr%12||12;return`${hr}:${m} ${ap}`;}
-function toast(msg,type='info'){const c=document.getElementById('toast-container');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);}
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
-function openModal(id){document.getElementById(id).style.display='flex';}
-function closeModal(id){document.getElementById(id).style.display='none';}
-function genPwd(){const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';return Array.from({length:8},()=>c[Math.floor(Math.random()*c.length)]).join('');}
-
-let currentAdmin=null, allBets=[], allAgents=[], allResults=[], csettings={commissionRate:10};
-
-function compressAndSaveImage(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(event){
-    const img = new Image();
-    img.onload = function(){
-      const canvas = document.createElement('canvas');
-      const MAX_SIZE = 400; 
-      let width = img.width, height = img.height;
-      if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-      else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-      canvas.width = width; canvas.height = height;
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-      const b64 = canvas.toDataURL('image/jpeg', 0.6);
-      document.getElementById('agent-photo-b64').value = b64;
-      document.getElementById('agent-photo-preview').src = b64;
-      document.getElementById('agent-photo-preview').style.display = 'block';
-    }
-    img.src = event.target.result;
-  }
-  reader.readAsDataURL(file);
+// PAGE NAV
+function SP(p){
+  document.querySelectorAll('#PC > div').forEach(d=>d.style.display='none');
+  const pg=document.getElementById('pg-'+p); if(pg) pg.style.display='block';
+  document.querySelectorAll('.slink').forEach(l=>l.classList.remove('active'));
+  const n=document.getElementById('nav-'+p); if(n) n.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  if(p==='risk') loadRisk();
+  if(p==='backup') loadDBInfo();
+  if(p==='agentrpt') fillARSelect();
+  if(p==='commission'){fillCSSelect();loadAllCommSumm();loadCSHistory();}
+  if(p==='bets') renderBets();
 }
 
-setInterval(()=>{
-  const now=getNowIST();
-  document.getElementById('dash-time').textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-  document.getElementById('live-date').textContent=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',weekday:'long'});
-  const t6=getNowIST();t6.setHours(18,0,0,0);
-  const diff=t6-now;
-  const cdEl=document.getElementById('d-countdown');
-  if(diff>0){const h=Math.floor((diff/3600000)%24),m=Math.floor((diff/60000)%60),s=Math.floor((diff/1000)%60);cdEl.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;cdEl.style.color='#f0b429';}
-  else{cdEl.textContent='Opened to Public';cdEl.style.color='#68d391';}
-},1000);
+// CLOCK
+function startClock(){
+  setInterval(()=>{
+    const now=getNow();
+    document.getElementById('lbt').textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    document.getElementById('lbd').textContent=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',weekday:'long'});
+    const t6=getNow(); t6.setHours(18,0,0,0);
+    const diff=t6-now; const cdEl=document.getElementById('dcd');
+    if(diff>0){const h=Math.floor((diff/3600000)%24),m=Math.floor((diff/60000)%60),s=Math.floor((diff/1000)%60);cdEl.textContent=`${p2(h)}:${p2(m)}:${p2(s)}`;cdEl.style.color='var(--gold)';}
+    else{cdEl.textContent='Opened to Public';cdEl.style.color='#68d391';}
+  },1000);
+}
 
-async function adminLogin(){
-  const m=document.getElementById('login-mobile').value.trim(),p=document.getElementById('login-password').value.trim();
-  if(!m||!p)return;
-  const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='Verifying...';
+// LOGIN
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('LP').style.display!=='none')doLogin();});
+async function doLogin(){
+  const m=document.getElementById('lm').value.trim(), p=document.getElementById('lp').value.trim();
+  const err=document.getElementById('lerr'); err.style.display='none';
+  if(!m||!p){err.style.display='block';err.textContent='Enter mobile and password.';return;}
+  const btn=document.getElementById('lbtn'); btn.disabled=true; btn.textContent='Verifying...';
   try{
-    const snap=await db.collection('admins').where('mobile','==',m).where('password','==',p).get();
-    if(!snap.empty){currentAdmin={id:snap.docs[0].id,...snap.docs[0].data()};loginSuccess();}
-    else if(m==='9999999999'&&p==='admin123'){const ref=await db.collection('admins').add({name:'Super Admin',mobile:'9999999999',password:'admin123'});currentAdmin={id:ref.id,name:'Super Admin',mobile:m};loginSuccess();}
-    else{document.getElementById('login-error').style.display='block';document.getElementById('login-error').textContent='Invalid credentials.';}
-  }catch(e){toast(e.message,'error');}
-  btn.disabled=false;btn.textContent='LOGIN';
+    const snap=await DB.collection('admins').where('mobile','==',m).where('password','==',p).get();
+    if(!snap.empty){cA={id:snap.docs[0].id,...snap.docs[0].data()};loginOK();}
+    else if(m==='9999999999'&&p==='admin123'){
+      const ref=await DB.collection('admins').add({name:'Super Admin',mobile:'9999999999',password:'admin123',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      cA={id:ref.id,name:'Super Admin',mobile:m}; loginOK();
+    } else {err.style.display='block';err.textContent='Invalid credentials. Try 9999999999/admin123';}
+  }catch(e){err.style.display='block';err.textContent='Error: '+e.message;}
+  btn.disabled=false; btn.textContent='LOGIN';
+}
+function loginOK(){
+  document.getElementById('LP').style.display='none';
+  document.getElementById('APP').style.display='block';
+  document.getElementById('aname').textContent=cA.name||'Admin';
+  startClock(); SP('dash'); loadData();
+}
+function doLogout(){
+  cA=null;
+  document.getElementById('LP').style.display='flex';
+  document.getElementById('APP').style.display='none';
+  document.getElementById('lm').value=''; document.getElementById('lp').value='';
 }
 
-function loginSuccess(){
-  document.getElementById('login-page').style.display='none';
-  document.getElementById('admin-app').style.display='block';
-  document.getElementById('nav-admin-name').textContent=currentAdmin.name||'Admin';
-  showPage('dashboard');loadAllData();
-}
-function adminLogout(){currentAdmin=null;location.reload();}
+// DATA LOADERS
+function loadData(){
+  DB.collection('settings').doc('main').onSnapshot(s=>{
+    if(s.exists) cS=s.data();
+    const el=document.getElementById('srate'); if(el&&cS.commissionRate) el.value=cS.commissionRate;
+  });
+  DB.collection('results').orderBy('timestamp','desc').onSnapshot(s=>{
+    allResults=s.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('bir').textContent=allResults.length;
+    renderResults(); renderRecent();
+    const tn=allResults.find(r=>r.date===getToday());
+    document.getElementById('dnum').textContent=tn?p2(tn.number):'--';
+  },e=>console.error('Results:',e));
 
-function loadAllData(){
-  db.collection('settings').doc('main').onSnapshot(snap=>{if(snap.exists) csettings=snap.data();const cr=document.getElementById('commission-rate');if(cr&&csettings.commissionRate) cr.value=csettings.commissionRate;});
-  
-  db.collection('agents').onSnapshot(snap=>{
-    allAgents=snap.docs.map(d=>({id:d.id,...d.data()}));
-    document.getElementById('d-agents').textContent=allAgents.length;
-    document.getElementById('bi-agents').textContent=allAgents.length;
-    renderAgents(allAgents);
-    if(document.getElementById('page-settlement').style.display==='block') renderSettlement();
-  });
-  
-  db.collection('results').orderBy('timestamp','desc').onSnapshot(snap=>{
-    allResults=snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderResults();
-    const tn=allResults.find(r=>r.id===getToday());
-    document.getElementById('d-today-num').textContent=tn&&tn.number!==undefined?String(tn.number).padStart(2,'0'):'--';
-    document.getElementById('d-today-harup').textContent=tn&&tn.harup!==undefined?tn.harup:'--';
+  // NO orderBy on agents — sort client-side
+  DB.collection('agents').onSnapshot(s=>{
+    allAgents=s.docs.map(d=>({id:d.id,...d.data()}));
+    allAgents.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    document.getElementById('dagents').textContent=allAgents.length;
+    document.getElementById('bia').textContent=allAgents.length;
+    renderAgents(allAgents); fillARSelect(); fillCSSelect();
+  },e=>console.error('Agents:',e));
+
+  // NO orderBy on bets — KEY FIX to avoid composite index error
+  DB.collection('bets').onSnapshot(s=>{
+    allBets=sortBets(s.docs.map(d=>({id:d.id,...d.data()})));
+    document.getElementById('bib').textContent=allBets.length;
+    updateBetStats(); renderBets(); renderFeed();
+    if(document.getElementById('pg-risk').style.display==='block') loadRisk();
+    if(document.getElementById('pg-commission').style.display==='block') loadAllCommSumm();
+  },e=>{
+    console.error('❌ Bets error:',e.code,e.message);
+    document.getElementById('bload').innerHTML=`<div style="padding:20px;color:#fc8181">
+      <b>⚠️ Bets load error:</b><br>${e.message}<br><br>
+      <b>Fix:</b> Firebase Console → Firestore Database → Rules → Paste:<br>
+      <code style="font-size:10px;color:#68d391">match /bets/{id} { allow read, write: if true; }</code><br>
+      Then click Publish.</div>`;
   });
 
-  db.collection('bets').onSnapshot(snap=>{
-    allBets=snap.docs.map(d=>({id:d.id,...d.data()}));
-    allBets.sort((a,b)=>{const ta=a.timestamp?.toDate?a.timestamp.toDate():new Date(0);const tb=b.timestamp?.toDate?b.timestamp.toDate():new Date(0);return tb-ta;});
-    document.getElementById('bi-bets').textContent=allBets.length;
-    updateBetStats();
-    if(document.getElementById('page-bets').style.display==='block') renderBetsTable();
-    if(document.getElementById('page-risk').style.display==='block') loadRiskSummary();
-    if(document.getElementById('page-settlement').style.display==='block') renderSettlement();
-  });
+  // Settlements
+  DB.collection('settlements').onSnapshot(s=>{
+    allSettlements=s.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('bis').textContent=allSettlements.length;
+  },()=>{});
+
+  loadSchedules();
 }
 
 function updateBetStats(){
-  const tb=allBets.filter(b=>b.date===getToday());
-  document.getElementById('d-bets').textContent=tb.length;
-  document.getElementById('d-amount').textContent=fmtINR(tb.reduce((s,b)=>s+(parseFloat(b.amount)||0),0));
-  document.getElementById('d-commission').textContent=fmtINR(tb.reduce((s,b)=>s+(parseFloat(b.commission)||0),0));
+  const today=getToday(), tb=allBets.filter(b=>b.date===today);
+  document.getElementById('dbets').textContent=tb.length;
+  const tA=tb.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+  const tC=tb.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  document.getElementById('damt').textContent=fmtINR(tA);
+  document.getElementById('dcomm').textContent=fmtINR(tC);
+  document.getElementById('bamt').textContent=fmtINR(tA);
+  document.getElementById('bcom').textContent=fmtINR(tC);
+  document.getElementById('dupd').textContent='Updated: '+getTS();
 }
 
-function showPage(p){
-  document.querySelectorAll('.page-content > div').forEach(d=>d.style.display='none');
-  document.getElementById('page-'+p).style.display='block';
-  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
-  const el=document.getElementById('nav-'+p);if(el) el.classList.add('active');
-  document.getElementById('sidebar').classList.remove('open');
-  if(p==='risk') loadRiskSummary();
-  if(p==='bets') renderBetsTable();
-  if(p==='settlement') renderSettlement();
+// LIVE FEED
+function renderFeed(){
+  const el=document.getElementById('dfeed'); const latest=allBets.slice(0,12);
+  if(!latest.length){el.innerHTML='<div class="empty-st" style="padding:16px"><div class="et">No bets yet. Agent panel se bet lagao.</div></div>';return;}
+  el.innerHTML=`<div style="overflow-x:auto"><table class="tbl" style="min-width:580px">
+    <thead><tr><th>Agent</th><th>Customer</th><th>Bet On</th><th>Amount</th><th>Win</th><th>Time</th></tr></thead>
+    <tbody>${latest.map(b=>`<tr>
+      <td><b>${b.agentName||'--'}</b><br><span style="color:#888;font-size:10px">${b.agentMobile||''}</span></td>
+      <td style="color:var(--gold);font-weight:600">${b.customerName||'Guest'}</td>
+      <td>${b.type==='number'?`<span class="nb2" style="font-size:12px">Num: ${p2(b.number??0)}</span>`:`<span class="hb2">Harup: ${b.harup??'?'}</span>`}</td>
+      <td style="color:var(--gold);font-weight:700">${fmtINR(b.amount)}</td>
+      <td style="color:#68d391">${fmtINR(b.userWin??((b.type==='number'?(b.amount||0)*90:(b.amount||0)*9)))}</td>
+      <td style="font-size:10px;color:#888">${b.date||'--'}<br>${b.time||'--'}</td>
+    </tr>`).join('')}</tbody></table></div>`;
 }
 
-async function openResultData(type) {
-  let selectedDateStr = document.getElementById(`open-${type}-date`).value;
-  let targetDate = getToday(); // Default aaj ka din
-  if (selectedDateStr) {
-    const [y, m, d] = selectedDateStr.split('-');
-    targetDate = `${d}-${m}-${y}`; // Format: DD-MM-YYYY
-  }
-
-  const updateData = { timestamp: firebase.firestore.FieldValue.serverTimestamp() };
-  
-  if(type === 'number') {
-    const n = parseInt(document.getElementById('open-num').value);
-    if(isNaN(n) || n<0 || n>99) return toast('Enter valid number 0-99','error');
-    const ti = document.getElementById('open-num-time').value;
-    updateData.number = n;
-    updateData.numberWord = gW(n);
-    updateData.numTime = ti ? fmtTime(ti) : getTimeStr();
-  } else if(type === 'harup') {
-    const h = parseInt(document.getElementById('open-harup').value);
-    if(isNaN(h) || h<0 || h>9) return toast('Enter valid harup 0-9','error');
-    const ti = document.getElementById('open-harup-time').value;
-    updateData.harup = h;
-    updateData.harupTime = ti ? fmtTime(ti) : getTimeStr();
-  }
-
-  try {
-    await db.collection('results').doc(targetDate).set(updateData, { merge: true });
-    toast(`${type.toUpperCase()} scheduled for ${targetDate}!`, 'success');
-    document.getElementById(`open-${type}`).value = '';
-    document.getElementById(`open-${type}-time`).value = '';
-    document.getElementById(`open-${type}-date`).value = '';
-  } catch(e) { toast('Error: '+e.message,'error'); }
+// RESULTS
+async function openNumber(){
+  const n=parseInt(document.getElementById('onn').value);
+  if(isNaN(n)||n<0||n>99){toast('Enter valid number 0–99','e');return;}
+  const ti=document.getElementById('ont').value;
+  const tStr=ti?fmtT(ti):getTS();
+  try{
+    await DB.collection('results').add({number:n,numberWord:gW(n),date:getToday(),time:tStr,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    toast(`Number ${p2(n)} saved! Visible at ${tStr}`,'s');
+    document.getElementById('onn').value=''; document.getElementById('ont').value='';
+  }catch(e){toast('Error: '+e.message,'e');}
 }
-
 function renderResults(){
-  document.getElementById('results-loading').style.display='none';
-  if(!allResults.length){document.getElementById('results-table').style.display='none';return;}
-  document.getElementById('results-table').style.display='table';
-  document.getElementById('results-body').innerHTML=allResults.map(r=>`
-    <tr>
-      <td>${r.id}</td>
-      <td><span class="number-badge">${r.number!==undefined?String(r.number).padStart(2,'0'):'--'}</span></td>
-      <td><span style="background:#2b6cb0;color:#fff;padding:2px 8px;border-radius:4px;font-weight:bold;">${r.harup!==undefined?r.harup:'--'}</span></td>
-      <td style="font-size:12px;color:#aaa;">${r.numTime||'--'}</td>
-      <td style="font-size:12px;color:#aaa;">${r.harupTime||'--'}</td>
-      <td><button class="btn btn-gold btn-sm" onclick="openEditResult('${r.id}')">✏️ Edit</button></td>
-    </tr>`).join('');
+  document.getElementById('rload').style.display='none';
+  if(!allResults.length){document.getElementById('rtbl').style.display='none';return;}
+  document.getElementById('rtbl').style.display='table';
+  document.getElementById('rbody').innerHTML=allResults.map(r=>`<tr>
+    <td>${r.date||'--'}</td><td><span class="nb2">${p2(r.number)}</span></td>
+    <td>${r.numberWord||gW(r.number)}</td><td>${fmtT(r.time)}</td>
+    <td><button class="btn btn-gold btn-sm" onclick="openER('${r.id}')">✏️</button> <button class="btn btn-red btn-sm" onclick="delRes('${r.id}')">🗑</button></td>
+  </tr>`).join('');
 }
+function renderRecent(){
+  const el=document.getElementById('rrecent'); if(!el)return;
+  if(!allResults.length){el.innerHTML='<div class="empty-st"><div class="et">No results yet</div></div>';return;}
+  el.innerHTML=allResults.slice(0,6).map(r=>`<div class="brow">
+    <span style="font-size:11px">${r.date}</span>
+    <span class="nb2" style="font-size:12px">${p2(r.number)}</span>
+    <span style="font-size:10px;color:var(--text3)">${fmtT(r.time)}</span>
+    <div><button class="btn btn-gold btn-sm" onclick="openER('${r.id}')">✏️</button> <button class="btn btn-red btn-sm" onclick="delRes('${r.id}')">🗑</button></div>
+  </div>`).join('');
+}
+function openER(id){const r=allResults.find(x=>x.id===id);if(!r)return;document.getElementById('erid').value=id;document.getElementById('ern').value=r.number;document.getElementById('erd').value=r.date;openM('mer');}
+async function saveEditRes(){
+  const id=document.getElementById('erid').value,n=parseInt(document.getElementById('ern').value),d=document.getElementById('erd').value;
+  if(!id||isNaN(n)||!d){toast('Fill all fields','e');return;}
+  try{await DB.collection('results').doc(id).update({number:n,numberWord:gW(n),date:d});toast('Updated!','s');closeM('mer');}
+  catch(e){toast('Error: '+e.message,'e');}
+}
+async function delRes(id){if(!confirm('Delete?'))return;await DB.collection('results').doc(id).delete();toast('Deleted','s');}
 
-function openEditResult(id){
-  const r=allResults.find(x=>x.id===id);if(!r)return;
-  document.getElementById('edit-result-id').value=id;
-  document.getElementById('edit-result-num').value=r.number!==undefined?r.number:'';
-  document.getElementById('edit-result-harup').value=r.harup!==undefined?r.harup:'';
-  openModal('modal-edit-result');
+// SCHEDULE
+async function schedNum(){
+  const n=parseInt(document.getElementById('scn').value),d=document.getElementById('scd').value,t=document.getElementById('sct').value;
+  if(isNaN(n)||n<0||n>99||!d||!t){toast('Fill all fields','e');return;}
+  const pts=d.split('-');
+  await DB.collection('schedule').add({number:n,date:`${pts[2]}-${pts[1]}-${pts[0]}`,time:t,status:'pending',timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+  toast('Scheduled!','s'); document.getElementById('scn').value=''; startSchedCheck();
 }
-async function saveEditResult(){
-  const id=document.getElementById('edit-result-id').value;
-  const n=document.getElementById('edit-result-num').value;
-  const h=document.getElementById('edit-result-harup').value;
-  const data = {};
-  if(n!=='') { data.number=parseInt(n); data.numberWord=gW(parseInt(n)); } else { data.number=firebase.firestore.FieldValue.delete(); data.numberWord=firebase.firestore.FieldValue.delete(); }
-  if(h!=='') { data.harup=parseInt(h); } else { data.harup=firebase.firestore.FieldValue.delete(); }
-  await db.collection('results').doc(id).update(data);
-  toast('Updated!','success'); closeModal('modal-edit-result');
-}
-
-function renderSettlement() {
-  const today = getToday();
-  const stats = {};
-  
-  allAgents.forEach(a => {
-    stats[a.id] = { name: a.name || 'Unknown', mobile: a.mobile || '--', todayComm: 0, dueComm: 0, dueBetIds: [] };
+function loadSchedules(){
+  DB.collection('schedule').where('status','==','pending').orderBy('timestamp').onSnapshot(snap=>{
+    const el=document.getElementById('sclist');
+    if(snap.empty){el.innerHTML='<div class="empty-st"><div class="et">No schedules</div></div>';document.getElementById('dnext').textContent='--';return;}
+    el.innerHTML=snap.docs.map(doc=>{const s=doc.data();return`<div class="brow"><span class="nb2" style="font-size:12px">${p2(s.number)}</span><span style="font-size:12px">${s.date} at ${s.time}</span><button class="btn btn-red btn-sm" onclick="if(confirm('Cancel?'))DB.collection('schedule').doc('${doc.id}').delete()">🗑</button></div>`;}).join('');
+    document.getElementById('dnext').textContent=p2(snap.docs[0].data().number);
   });
-
-  allBets.forEach(b => {
-    if(!b.settled) {
-      if(!stats[b.agentId]) stats[b.agentId] = { name: b.agentName||'Unknown', mobile: b.agentMobile||'--', todayComm: 0, dueComm: 0, dueBetIds: [] };
-      const commAmt = parseFloat(b.commission) || 0;
-      if(b.date === today) stats[b.agentId].todayComm += commAmt; 
-      else { stats[b.agentId].dueComm += commAmt; stats[b.agentId].dueBetIds.push(b.id); }
-    }
-  });
-
-  let html = '';
-  Object.keys(stats).forEach(agId => {
-    const s = stats[agId];
-    if(s.todayComm > 0 || s.dueComm > 0) {
-      html += `
-        <tr>
-          <td><strong>${s.name}</strong><br><span style="font-size:11px;color:#888;">📞 ${s.mobile}</span></td>
-          <td style="color:#f0b429;">${fmtINR(s.todayComm)}</td>
-          <td style="color:#fc8181;font-weight:bold;">${fmtINR(s.dueComm)}</td>
-          <td>
-            <button class="btn btn-gold btn-sm" ${s.dueComm > 0 ? '' : 'disabled style="opacity:0.4;cursor:not-allowed;"'} 
-                    onclick="settleAgentCommission('${agId}')">✅ Settle ₹${s.dueComm.toFixed(2)}</button>
-          </td>
-        </tr>`;
-    }
-  });
-
-  if(html === '') html = '<tr><td colspan="4" class="text-center" style="padding:40px;">No pending commissions found.</td></tr>';
-  document.getElementById('settlement-body').innerHTML = html;
+  startSchedCheck();
 }
-
-async function settleAgentCommission(agId) {
-  const today = getToday();
-  const dueBetIds = allBets.filter(b => b.agentId === agId && !b.settled && b.date !== today).map(b => b.id);
-  
-  if(dueBetIds.length === 0) return toast('No commission ready for settlement!', 'error');
-  if(!confirm(`Are you sure you want to clear/settle the past commission for this agent?`)) return;
-  
-  const btn = event.currentTarget;
-  const originalText = btn.innerHTML;
-  btn.innerHTML = 'Settling...'; btn.disabled = true;
-
-  try {
-    let batch = db.batch(); let count = 0;
-    for (let i = 0; i < dueBetIds.length; i++) {
-      const betRef = db.collection('bets').doc(dueBetIds[i]);
-      batch.update(betRef, { settled: true, settledAt: new Date().toISOString() });
-      count++;
-      if (count === 500) { await batch.commit(); batch = db.batch(); count = 0; }
-    }
-    if (count > 0) await batch.commit();
-    toast('Commission Settled Successfully!', 'success');
-  } catch (err) {
-    toast('Error settling: ' + err.message, 'error');
-    btn.innerHTML = originalText; btn.disabled = false;
-  }
-}
-
-function filterBets(){renderBetsTable();}
-function renderBetsTable(){
-  const qA=(document.getElementById('bs-agent')?.value||'').toLowerCase();
-  const qC=(document.getElementById('bs-customer')?.value||'').toLowerCase();
-  const qN=(document.getElementById('bs-num')?.value||'').trim();
-  const qD=(document.getElementById('bs-date')?.value||'').trim();
-  const qT=document.getElementById('bs-type')?.value||'';
-
-  let b=[...allBets];
-  if(qA) b=b.filter(x=>(x.agentName||'').toLowerCase().includes(qA));
-  if(qC) b=b.filter(x=>(x.customerName||'').toLowerCase().includes(qC));
-  if(qD) b=b.filter(x=>(x.date||'').includes(qD));
-  if(qT) b=b.filter(x=>x.type===qT);
-  if(qN){b=b.filter(x=>{if(x.type==='number'&&String(x.number)===qN) return true;if(x.type==='harup'&&String(x.harup)===qN) return true;return false;});}
-
-  document.getElementById('bets-loading').style.display='none';
-  document.getElementById('bets-count-label').textContent=b.length;
-  const totalF = b.reduce((s,x)=>s+(parseFloat(x.amount)||0), 0);
-  document.getElementById('bets-today-total').textContent=fmtINR(totalF);
-
-  const sumBox = document.getElementById('bets-summary-box');
-  if(b.length > 0) {
-    sumBox.style.display = 'block';
-    const agentTotals = {};
-    b.forEach(x => {
-      const aName = x.agentName || 'Unknown Agent';
-      if(!agentTotals[aName]) agentTotals[aName] = 0;
-      agentTotals[aName] += (parseFloat(x.amount)||0);
+function startSchedCheck(){
+  if(schedT)clearInterval(schedT);
+  schedT=setInterval(async()=>{
+    const now=getNow(),snap=await DB.collection('schedule').where('status','==','pending').get();
+    snap.docs.forEach(async doc=>{
+      const s=doc.data(),pts=s.date.split('-');
+      const target=new Date(`${pts[2]}-${pts[1]}-${pts[0]}T${s.time}`);
+      if(now>=target){
+        await DB.collection('results').add({number:s.number,numberWord:gW(s.number),date:s.date,time:s.time,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+        await doc.ref.update({status:'completed'});
+        toast('Auto-opened: '+s.number,'s');
+      }
     });
-    let sumHtml = '';
-    for(const [name, amt] of Object.entries(agentTotals)) { sumHtml += `<div class="summary-item"><span>👤 ${name}</span><span style="color:#f0b429;font-weight:bold;">${fmtINR(amt)}</span></div>`; }
-    document.getElementById('bets-summary-content').innerHTML = sumHtml;
-  } else { sumBox.style.display = 'none'; }
-
-  const tbl=document.getElementById('bets-table'), empty=document.getElementById('bets-empty');
-  if(!b.length){tbl.style.display='none';empty.style.display='flex';return;}
-  empty.style.display='none';tbl.style.display='table';
-
-  document.getElementById('bets-body').innerHTML=b.map(x=>`
-    <tr>
-      <td style="font-size:12px;"><strong>${x.agentName||'--'}</strong><br><span style="color:#888;font-size:11px;">${x.agentMobile||''}</span></td>
-      <td style="color:#f0b429;font-weight:bold;">${x.customerName||'Guest'}</td>
-      <td>${x.type==='number'?`<span style="background:#d4af37;color:#000;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;padding:3px 10px;border-radius:6px;">Num: ${String(x.number!==null?x.number:0).padStart(2,'0')}</span>`:`<span style="background:#2b6cb0;color:#fff;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;padding:3px 10px;border-radius:6px;">Harup: ${x.harup!==null?x.harup:'?'}</span>`}</td>
-      <td style="color:#f0b429;font-weight:700;">${fmtINR(x.amount||0)}</td>
-      <td><span class="win-badge">${fmtINR(x.userWin!==undefined?x.userWin:(x.type==='number'?(x.amount||0)*90:(x.amount||0)*9))}</span></td>
-      <td style="color:#fc8181;">${fmtINR(x.commission||0)}</td>
-      <td style="font-size:11px;color:#aaa;">${x.date||'--'}<br>${x.time||'--'}</td>
-    </tr>`).join('');
+  },30000);
 }
 
-function loadRiskSummary(){
-  const tb=allBets.filter(b=>b.date===getToday());
-  let ns=Array.from({length:100},(_,i)=>({num:i,amount:0,commission:0,payout:0,count:0}));
-  let hs=Array.from({length:10},(_,i)=>({harup:i,amount:0,commission:0,payout:0,count:0}));
+// BETS
+function filterBets(){renderBets();}
+function renderBets(){
+  updateBetStats();
+  const qA=(document.getElementById('bfag')?.value||'').toLowerCase();
+  const qC=(document.getElementById('bfcu')?.value||'').toLowerCase();
+  const qN=(document.getElementById('bfnu')?.value||'').trim();
+  const qD=(document.getElementById('bfda')?.value||'').trim();
+  const qT=document.getElementById('bfty')?.value||'';
+  let b=[...allBets];
+  if(qA)b=b.filter(x=>(x.agentName||'').toLowerCase().includes(qA));
+  if(qC)b=b.filter(x=>(x.customerName||'').toLowerCase().includes(qC));
+  if(qD)b=b.filter(x=>(x.date||'').includes(qD));
+  if(qT)b=b.filter(x=>x.type===qT);
+  if(qN)b=b.filter(x=>(x.type==='number'&&String(x.number)===qN)||(x.type==='harup'&&String(x.harup)===qN));
+  document.getElementById('bload').style.display='none';
+  document.getElementById('bcnt').textContent=b.length;
+  const tbl=document.getElementById('btbl'),emp=document.getElementById('bempty');
+  if(!b.length){tbl.style.display='none';emp.style.display='flex';return;}
+  emp.style.display='none';tbl.style.display='table';
+  document.getElementById('bbody').innerHTML=b.map(x=>`<tr>
+    <td style="font-size:11px"><b>${x.agentName||'--'}</b><br><span style="color:#888">${x.agentMobile||''}</span></td>
+    <td style="color:var(--gold);font-weight:600">${x.customerName||'Guest'}</td>
+    <td><span class="${x.type==='number'?'bdg bdg-gold':'bdg bdg-b'}">${x.type}</span></td>
+    <td>${x.type==='number'?`<span class="nb2" style="font-size:12px">Num: ${p2(x.number??0)}</span>`:`<span class="hb2">Harup: ${x.harup??'?'}</span>`}</td>
+    <td style="color:var(--gold);font-weight:700">${fmtINR(x.amount)}</td>
+    <td style="color:#68d391">${fmtINR(x.userWin??(x.type==='number'?(x.amount||0)*90:(x.amount||0)*9))}</td>
+    <td style="color:#fc8181">${fmtINR(x.commission)}</td>
+    <td style="font-size:11px">${x.date||'--'}</td>
+    <td style="font-size:11px;color:#888">${x.time||'--'}</td>
+  </tr>`).join('');
+}
 
+// RISK
+function loadRisk(){
+  const today=getToday(),tb=allBets.filter(b=>b.date===today);
+  let ns=Array.from({length:100},(_,i)=>({num:i,amount:0,commission:0,payout:0,count:0,agents:new Set()}));
+  let hs=Array.from({length:10},(_,i)=>({harup:i,amount:0,commission:0,payout:0,count:0,agents:new Set()}));
   tb.forEach(b=>{
     const amt=parseFloat(b.amount||0),comm=parseFloat(b.commission||0);
-    if(b.type==='number'){const n=parseInt(b.number);if(!isNaN(n)&&n>=0&&n<=99){ns[n].amount+=amt;ns[n].commission+=comm;ns[n].count++;ns[n].payout+=parseFloat(b.userWin!==undefined?b.userWin:amt*90);}}
-    else if(b.type==='harup'){const h=parseInt(b.harup);if(!isNaN(h)&&h>=0&&h<=9){hs[h].amount+=amt;hs[h].commission+=comm;hs[h].count++;hs[h].payout+=parseFloat(b.userWin!==undefined?b.userWin:amt*9);}}
+    if(b.type==='number'){const n=parseInt(b.number);if(!isNaN(n)&&n>=0&&n<=99){ns[n].amount+=amt;ns[n].commission+=comm;ns[n].count++;ns[n].payout+=(b.userWin??(amt*90));ns[n].agents.add(b.agentName||'?');}}
+    else if(b.type==='harup'){const h=parseInt(b.harup);if(!isNaN(h)&&h>=0&&h<=9){hs[h].amount+=amt;hs[h].commission+=comm;hs[h].count++;hs[h].payout+=(b.userWin??(amt*9));hs[h].agents.add(b.agentName||'?');}}
   });
-
-  const aN=ns.filter(x=>x.amount>0).sort((a,b)=>a.payout-b.payout), zN=ns.filter(x=>x.amount===0);
-  const aH=hs.filter(x=>x.amount>0).sort((a,b)=>a.payout-b.payout), zH=hs.filter(x=>x.amount===0);
-  const mNP=aN.length?aN[aN.length-1].payout:0, mHP=aH.length?aH[aH.length-1].payout:0;
-
-  function nRC(x,i){if(i===0)return'best-pick';if(x.payout<=mNP*0.33)return'best-pick';if(x.payout<=mNP*0.66)return'mid-pick';return'danger-pick';}
-  function hRC(x,i){if(i===0)return'best-pick';if(x.payout<=mHP*0.33)return'best-pick';if(x.payout<=mHP*0.66)return'mid-pick';return'danger-pick';}
-  function rCol(c){return c==='best-pick'?'#68d391':c==='mid-pick'?'#f0b429':'#fc8181';}
-
-  document.getElementById('risk-active-nums').innerHTML=aN.length?aN.map((x,i)=>{const c=nRC(x,i),co=rCol(c);return`<div class="risk-row ${c}"><div class="risk-num" style="background:rgba(0,0,0,0.4);">${String(x.num).padStart(2,'0')}</div><div class="risk-info"><div class="ri-top">Play: ${fmtINR(x.amount)} | Bets: ${x.count}</div><div class="ri-bot" style="color:${co};">${i===0?'🥇 Safest Pick':c==='mid-pick'?'⚠️ Mid Risk':'🔴 High Risk'}</div></div><div class="risk-payout"><div class="rp-label">Pay If Wins</div><div class="rp-val" style="color:${co};">${fmtINR(x.payout)}</div></div></div>`;}).join(''):'<div class="empty-state-text">No number bets</div>';
-  document.getElementById('risk-zero-nums').innerHTML=zN.length?`<div class="zero-tags">${zN.map(x=>`<span style="background:#1a2a1a;border:1px solid #276749;color:#68d391;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;padding:3px 9px;border-radius:5px;">${String(x.num).padStart(2,'0')}</span>`).join('')}</div>`:'<div style="font-size:12px;color:#888;">Sabhi numbers par bet lag chuka hai!</div>';
-
-  document.getElementById('risk-active-harups').innerHTML=aH.length?aH.map((x,i)=>{const c=hRC(x,i),co=rCol(c);return`<div class="risk-row ${c}"><div class="risk-num" style="background:rgba(0,0,0,0.4);">H${x.harup}</div><div class="risk-info"><div class="ri-top">Play: ${fmtINR(x.amount)} | Bets: ${x.count}</div><div class="ri-bot" style="color:${co};">${i===0?'🥇 Safest Pick':c==='mid-pick'?'⚠️ Mid Risk':'🔴 High Risk'}</div></div><div class="risk-payout"><div class="rp-label">Pay If Wins</div><div class="rp-val" style="color:${co};">${fmtINR(x.payout)}</div></div></div>`;}).join(''):'<div class="empty-state-text">No harup bets</div>';
-  document.getElementById('risk-zero-harups').innerHTML=zH.length?`<div class="zero-tags">${zH.map(x=>`<span style="background:#162030;border:1px solid #2b6cb0;color:#63b3ed;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;padding:3px 9px;border-radius:5px;">H${x.harup}</span>`).join('')}</div>`:'<div style="font-size:12px;color:#888;">Sabhi harups par bet lag chuka hai!</div>';
-
-  document.getElementById('rt-bets').textContent=tb.length;
-  document.getElementById('rt-amount').textContent=fmtINR(tb.reduce((s,b)=>s+parseFloat(b.amount||0),0));
-  document.getElementById('rt-comm').textContent=fmtINR(tb.reduce((s,b)=>s+parseFloat(b.commission||0),0));
-  document.getElementById('rt-max-payout').textContent=fmtINR(Math.max(mNP,mHP));
-  document.getElementById('risk-totals').style.display='block';
+  const actN=ns.filter(x=>x.amount>0).sort((a,b)=>a.payout-b.payout);
+  const zeroN=ns.filter(x=>x.amount===0);
+  const actH=hs.filter(x=>x.amount>0).sort((a,b)=>a.payout-b.payout);
+  const zeroH=hs.filter(x=>x.amount===0);
+  const maxNP=actN.length?actN[actN.length-1].payout:0;
+  const maxHP=actH.length?actH[actH.length-1].payout:0;
+  function rC(p,max){return p<=max*.33?'rbest':p<=max*.66?'rmid':'rhigh';}
+  function rCol(c){return c==='rbest'?'#68d391':c==='rmid'?'#f0b429':'#fc8181';}
+  function rBg(c){return c==='rbest'?'background:#1a4a2a;color:#68d391':c==='rmid'?'background:#4a3a0a;color:#f0b429':'background:#4a1a1a;color:#fc8181';}
+  function rowN(arr,max){
+    if(!arr.length)return'<div class="empty-st"><div class="et">No number bets today</div></div>';
+    return arr.map((x,i)=>{const c=rC(x.payout,max),col=rCol(c),bg=rBg(c),ags=[...x.agents].join(', ');return`<div class="rrow ${c}">
+      <div class="rnb" style="${bg}">${p2(x.num)}</div>
+      <div style="flex:1"><div style="font-size:11px;color:var(--text2)">Amount: <b style="color:${col}">${fmtINR(x.amount)}</b> | Bets: ${x.count} | Comm: ${fmtINR(x.commission)}</div><div style="font-size:10px;color:#666">Agents: ${ags}</div></div>
+      <div style="text-align:right;min-width:85px"><div style="font-size:9px;color:#666;text-transform:uppercase">Pay If Wins</div><div style="font-size:14px;font-weight:700;color:${col}">${fmtINR(x.payout)}</div>${i===0?'<div style="font-size:9px;color:#68d391">🥇 Safest</div>':''}</div>
+    </div>`;}).join('');
+  }
+  function rowH(arr,max){
+    if(!arr.length)return'<div class="empty-st"><div class="et">No harup bets today</div></div>';
+    return arr.map((x,i)=>{const c=rC(x.payout,max),col=rCol(c),bg=rBg(c),ags=[...x.agents].join(', ');return`<div class="rrow ${c}">
+      <div class="rnb" style="${bg};font-size:13px">H${x.harup}</div>
+      <div style="flex:1"><div style="font-size:11px;color:var(--text2)">Amount: <b style="color:${col}">${fmtINR(x.amount)}</b> | Bets: ${x.count} | Comm: ${fmtINR(x.commission)}</div><div style="font-size:10px;color:#666">Agents: ${ags}</div></div>
+      <div style="text-align:right;min-width:85px"><div style="font-size:9px;color:#666;text-transform:uppercase">Pay If Wins</div><div style="font-size:14px;font-weight:700;color:${col}">${fmtINR(x.payout)}</div>${i===0?'<div style="font-size:9px;color:#68d391">🥇 Safest</div>':''}</div>
+    </div>`;}).join('');
+  }
+  document.getElementById('ranums').innerHTML=rowN(actN,maxNP);
+  document.getElementById('raharups').innerHTML=rowH(actH,maxHP);
+  const zNS='background:#0d1a0d;border:1px solid #1a4a2a;color:#68d391;font-family:Orbitron,monospace;font-size:11px;font-weight:700;padding:3px 7px;border-radius:5px;display:inline-block';
+  const zHS='background:#0d1220;border:1px solid #1a2a4a;color:#63b3ed;font-family:Orbitron,monospace;font-size:11px;font-weight:700;padding:3px 7px;border-radius:5px;display:inline-block';
+  document.getElementById('rzeronums').innerHTML=zeroN.length?zeroN.map(x=>`<span style="${zNS}">${p2(x.num)}</span>`).join(''):'<span style="font-size:11px;color:#555">All numbers have bets!</span>';
+  document.getElementById('rzeroh').innerHTML=zeroH.length?zeroH.map(x=>`<span style="${zHS}">H${x.harup}</span>`).join(''):'<span style="font-size:11px;color:#555">All harups have bets!</span>';
+  const tA=tb.reduce((s,b)=>s+(parseFloat(b.amount)||0),0),tC=tb.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const maxP=Math.max(...actN.map(x=>x.payout),...actH.map(x=>x.payout),0);
+  document.getElementById('rtbt').textContent=tb.length;document.getElementById('rtam').textContent=fmtINR(tA);
+  document.getElementById('rtcm').textContent=fmtINR(tC);document.getElementById('rtmx').textContent=fmtINR(maxP);
+  document.getElementById('rtotals').style.display='block';
 }
 
+// AGENT REPORT
+function fillARSelect(){
+  const sel=document.getElementById('arsel');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- Select Agent --</option>'+allAgents.map(a=>`<option value="${a.id}">${a.name||'Unknown'} (${a.mobile||'--'})</option>`).join('');
+  if(cur)sel.value=cur;
+}
+function toTS(s){if(!s)return'';const p=s.split('-');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:s;}
+function loadAR(){
+  const agId=document.getElementById('arsel').value;
+  const from=document.getElementById('arfrom').value.trim();
+  const to=document.getElementById('arto').value.trim();
+  const ld=document.getElementById('arload'),tbl=document.getElementById('artbl');
+  if(!agId){ld.innerHTML='<div class="empty-st"><div class="ei">👤</div><div class="et">Select agent</div></div>';tbl.style.display='none';document.getElementById('arsumm').style.display='none';return;}
+  let bets=allBets.filter(b=>b.agentId===agId);
+  if(from)bets=bets.filter(b=>toTS(b.date)>=toTS(from));
+  if(to)bets=bets.filter(b=>toTS(b.date)<=toTS(to));
+  document.getElementById('arsumm').style.display='grid';
+  document.getElementById('arbt').textContent=bets.length;
+  document.getElementById('aram').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.amount)||0),0));
+  document.getElementById('arcm').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.commission)||0),0));
+  document.getElementById('arwn').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.userWin)||0),0));
+  if(!bets.length){ld.innerHTML='<div class="empty-st"><div class="ei">🎲</div><div class="et">No bets in this range</div></div>';tbl.style.display='none';return;}
+  ld.style.display='none';tbl.style.display='table';
+  document.getElementById('arbody').innerHTML=bets.map(b=>`<tr>
+    <td>${b.date||'--'}</td><td style="color:var(--gold)">${b.customerName||'Guest'}</td>
+    <td><span class="${b.type==='number'?'bdg bdg-gold':'bdg bdg-b'}">${b.type}</span></td>
+    <td>${b.type==='number'?`<span class="nb2" style="font-size:11px">${p2(b.number??0)}</span>`:`<span class="hb2">H${b.harup}</span>`}</td>
+    <td style="color:var(--gold);font-weight:600">${fmtINR(b.amount)}</td>
+    <td style="color:#68d391">${fmtINR(b.userWin??(b.type==='number'?(b.amount||0)*90:(b.amount||0)*9))}</td>
+    <td style="color:#fc8181">${fmtINR(b.commission)}</td>
+    <td style="font-size:10px;color:#888">${b.time||'--'}</td>
+  </tr>`).join('');
+}
+
+// REPORTS
+function genRpt(type){
+  const now=new Date();let fl=[...allBets],title='';
+  if(type==='daily'){fl=allBets.filter(b=>b.date===getToday());title='Daily — '+getToday();}
+  else if(type==='weekly'){const wk=new Date(now);wk.setDate(wk.getDate()-7);fl=allBets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=wk);title='Weekly (7 Days)';}
+  else{const mo=new Date(now);mo.setDate(mo.getDate()-30);fl=allBets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=mo);title='Monthly (30 Days)';}
+  const tA=fl.reduce((s,b)=>s+(parseFloat(b.amount)||0),0),tC=fl.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  document.getElementById('rptout').innerHTML=`
+    <div class="card" style="margin-bottom:10px">
+      <div class="ctitle">📈 ${title}</div>
+      <div class="g3" style="margin-top:10px">
+        <div class="sc"><div class="sv">${fl.length}</div><div class="sl">Bets</div></div>
+        <div class="sc"><div class="sv" style="font-size:15px">${fmtINR(tA)}</div><div class="sl">Amount</div></div>
+        <div class="sc"><div class="sv" style="font-size:15px;color:#fc8181">${fmtINR(tC)}</div><div class="sl">Commission</div></div>
+      </div>
+      <button class="btn btn-gold btn-sm" style="margin-top:10px" onclick='exportCSV(${JSON.stringify(fl.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,Commission:b.commission})))}, "${type}_report")'>⬇ Export CSV</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden"><div style="overflow-x:auto">
+      <table class="tbl" style="min-width:560px"><thead><tr><th>Date</th><th>Agent</th><th>Customer</th><th>Bet</th><th>Amount</th><th>Comm</th></tr></thead>
+      <tbody>${fl.slice(0,60).map(b=>`<tr><td>${b.date||'--'}</td><td>${b.agentName||'--'}</td><td>${b.customerName||'Guest'}</td><td>${b.type==='number'?`N:${b.number}`:`H:${b.harup}`}</td><td style="color:var(--gold)">${fmtINR(b.amount)}</td><td style="color:#fc8181">${fmtINR(b.commission)}</td></tr>`).join('')}</tbody>
+      </table></div></div>`;
+  toast('Report ready!','s');
+}
+
+// AGENTS
+function filterAgents(){
+  const q=document.getElementById('agq').value.toLowerCase();
+  const st=document.getElementById('agst').value;
+  renderAgents(allAgents.filter(a=>{
+    const m=(a.name||'').toLowerCase().includes(q)||(a.mobile||'').includes(q)||(a.aadhaar||'').includes(q);
+    return m&&(!st||(a.status||'active')===st);
+  }));
+}
 function renderAgents(list){
-  const el=document.getElementById('agents-grid');
-  if(!list.length){el.innerHTML='<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No agents found</div></div>';return;}
-  el.innerHTML=list.map(a=>`
-    <div class="agent-card">
-      <img src="${a.photoUrl||'https://via.placeholder.com/60'}" class="agent-card-img" alt="Photo"/>
-      <div class="agent-card-info">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div><div class="agent-card-name">${a.name||'Unknown'}</div><div class="agent-card-mobile">📞 ${a.mobile||'--'}</div></div>
-          <span class="${a.status==='active'?'badge-g':'badge-r'}">${a.status||'active'}</span>
+  const el=document.getElementById('agrid');
+  if(!list.length){el.innerHTML='<div class="empty-st" style="grid-column:1/-1"><div class="ei">👥</div><div class="et">No agents found</div></div>';return;}
+  el.innerHTML=list.map(a=>{
+    const agB=allBets.filter(b=>b.agentId===a.id&&b.date===getToday());
+    const dA=agB.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+    const dC=agB.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+    // Pending commission (all time unsettled)
+    const totalComm=allBets.filter(b=>b.agentId===a.id).reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+    const settledComm=allSettlements.filter(s=>s.agentId===a.id).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+    const pendingComm=Math.max(0,totalComm-settledComm);
+    const photo=a.photoUrl?`<img src="${a.photoUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='👤'"/>`:'👤';
+    return`<div class="agcard">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+        <div class="agphoto">${photo}</div>
+        <div style="flex:1">
+          <div style="font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;color:var(--gold)">${a.name||'Unknown'}</div>
+          <div style="font-size:11px;color:var(--text2)">📞 ${a.mobile||'--'}</div>
+          ${a.aadhaar?`<div style="font-size:10px;color:var(--text3)">🪪 ${a.aadhaar}</div>`:''}
         </div>
-        <div style="font-size:11px;color:#aaa;margin-bottom:8px;">
-          🔑 Pwd: <strong style="color:#f0b429;">${a.password||'--'}</strong> | 🆔 Aadhar: ${a.aadhar||'--'}<br>📍 ${a.address||'No address'}
+        <span class="${(a.status||'active')==='active'?'bdg bdg-g':'bdg bdg-r'}">${a.status||'active'}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">📍 ${a.address||'No address'}</div>
+      <div style="display:flex;gap:5px;margin-bottom:8px">
+        <div style="flex:1;background:var(--bg2);border-radius:5px;padding:5px;text-align:center">
+          <div style="font-size:9px;color:var(--text3)">Today Bets</div><div style="font-size:13px;font-weight:700;color:var(--gold)">${agB.length}</div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn btn-gold btn-sm" onclick="editAgent('${a.id}')">✏️ Edit</button>
-          <button class="btn btn-blue btn-sm" onclick="toggleBlock('${a.id}','${a.status}')">${a.status==='blocked'?'🔓 Unblock':'🔒 Block'}</button>
-          <button class="btn btn-red btn-sm" onclick="delAgent('${a.id}')">🗑</button>
+        <div style="flex:1;background:var(--bg2);border-radius:5px;padding:5px;text-align:center">
+          <div style="font-size:9px;color:var(--text3)">Today Amt</div><div style="font-size:12px;font-weight:700;color:var(--gold)">${fmtINR(dA)}</div>
+        </div>
+        <div style="flex:1;background:rgba(221,107,32,.1);border-radius:5px;padding:5px;text-align:center;border:1px solid rgba(221,107,32,.2)">
+          <div style="font-size:9px;color:var(--text3)">Pending Comm</div><div style="font-size:12px;font-weight:700;color:#f6ad55">${fmtINR(pendingComm)}</div>
         </div>
       </div>
-    </div>`).join('');
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-gold btn-sm" onclick="viewAgentP('${a.id}')">👁 Profile</button>
+        <button class="btn btn-blue btn-sm" onclick="editAgent('${a.id}')">✏️ Edit</button>
+        <button class="btn btn-gray btn-sm" onclick="tgBlock('${a.id}','${a.status||'active'}')">${(a.status||'active')==='blocked'?'🔓 Unblock':'🔒 Block'}</button>
+        <button class="btn btn-gray btn-sm" onclick="rstPwd('${a.id}')">🔑</button>
+        <button class="btn btn-red btn-sm" onclick="delAgent('${a.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
 }
-
-function filterAgents(){
-  const q=document.getElementById('agent-search').value.toLowerCase();
-  renderAgents(allAgents.filter(a=>(a.name||'').toLowerCase().includes(q)||(a.mobile||'').includes(q)));
+function viewAgentP(id){
+  const a=allAgents.find(x=>x.id===id);if(!a)return;
+  const agB=allBets.filter(b=>b.agentId===id);
+  const tdB=agB.filter(b=>b.date===getToday());
+  const tA=agB.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+  const tC=agB.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const settled=allSettlements.filter(s=>s.agentId===id).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+  const pending=Math.max(0,tC-settled);
+  const photo=a.photoUrl?`<img src="${a.photoUrl}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--borderg)" onerror="this.outerHTML='<span style=font-size:40px>👤</span>'"/>`:'<span style="font-size:40px">👤</span>';
+  document.getElementById('apbody').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      ${photo}
+      <div>
+        <div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;color:var(--gold)">${a.name}</div>
+        <div style="font-size:12px;color:var(--text2)">📞 ${a.mobile||'--'}</div>
+        <span class="${(a.status||'active')==='active'?'bdg bdg-g':'bdg bdg-r'}">${a.status||'active'}</span>
+      </div>
+    </div>
+    <div class="g2" style="margin-bottom:12px;font-size:12px">
+      <div class="brow"><span>🪪 Aadhaar</span><strong>${a.aadhaar||'Not set'}</strong></div>
+      <div class="brow"><span>📍 Address</span><strong>${a.address||'Not set'}</strong></div>
+    </div>
+    <div class="g3" style="margin-bottom:12px">
+      <div class="sc"><div class="sv">${agB.length}</div><div class="sl">All Bets</div></div>
+      <div class="sc"><div class="sv" style="font-size:14px">${fmtINR(tA)}</div><div class="sl">Total Amount</div></div>
+      <div class="sc"><div class="sv" style="font-size:14px;color:#68d391">${fmtINR(tC)}</div><div class="sl">Total Commission</div></div>
+    </div>
+    <div class="brow"><span>Today Bets</span><strong style="color:var(--gold)">${tdB.length}</strong></div>
+    <div class="brow"><span>Commission Settled</span><strong style="color:#68d391">${fmtINR(settled)}</strong></div>
+    <div class="brow" style="background:rgba(221,107,32,.08);border:1px solid rgba(221,107,32,.25)"><span>Pending Commission</span><strong style="color:#f6ad55;font-size:16px">${fmtINR(pending)}</strong></div>
+    <div class="brow"><span>Password</span><strong style="color:var(--text3)">${a.password||'--'}</strong></div>`;
+  openM('map');
 }
-
+function resetAF(){
+  ['ageid','agname','agmob','agpass','agaadh','agaddr'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('agstat').value='active';
+  document.getElementById('agtitle').textContent='Create New Agent';
+  document.getElementById('agphprev').style.display='none';
+  document.getElementById('agphoto').value='';
+}
+function prevPhoto(){
+  const f=document.getElementById('agphoto').files[0];if(!f)return;
+  const r=new FileReader(); r.onload=e=>{const img=document.getElementById('agphprev');img.src=e.target.result;img.style.display='block';}; r.readAsDataURL(f);
+}
 async function saveAgent(){
-  const id=document.getElementById('agent-edit-id').value;
-  const d={
-    name:document.getElementById('agent-name').value.trim(),
-    mobile:document.getElementById('agent-mobile').value.trim(),
-    password:document.getElementById('agent-password').value.trim(),
-    address:document.getElementById('agent-address').value.trim(),
-    aadhar:document.getElementById('agent-aadhar').value.trim(),
-    status:document.getElementById('agent-status').value
-  };
-  const b64 = document.getElementById('agent-photo-b64').value;
-  if(b64) d.photoUrl = b64; 
-
-  if(!d.name||!d.mobile||!d.password) return toast('Fill all required fields','error');
-  try{
-    if(id) await db.collection('agents').doc(id).update(d);
-    else await db.collection('agents').add({...d,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    closeModal('modal-agent'); toast('Agent saved!','success');
-    ['agent-name','agent-mobile','agent-password','agent-address','agent-aadhar','agent-edit-id','agent-photo','agent-photo-b64'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('agent-photo-preview').style.display='none';
-  }catch(e){toast('Error: '+e.message,'error');}
+  const id=document.getElementById('ageid').value;
+  const d={name:document.getElementById('agname').value.trim(),mobile:document.getElementById('agmob').value.trim(),password:document.getElementById('agpass').value.trim(),aadhaar:document.getElementById('agaadh').value.trim(),address:document.getElementById('agaddr').value.trim(),status:document.getElementById('agstat').value};
+  if(!d.name||!d.mobile||!d.password){toast('Name, Mobile & Password required','e');return;}
+  const f=document.getElementById('agphoto').files[0];
+  if(f){const r=new FileReader();r.onload=async e=>{d.photoUrl=e.target.result;await wA(id,d);};r.readAsDataURL(f);}
+  else await wA(id,d);
 }
-
+async function wA(id,d){
+  try{
+    if(id)await DB.collection('agents').doc(id).update(d);
+    else await DB.collection('agents').add({...d,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    closeM('mag');resetAF();toast('Agent saved!','s');
+  }catch(e){toast('Error: '+e.message,'e');}
+}
 function editAgent(id){
   const a=allAgents.find(x=>x.id===id);if(!a)return;
-  document.getElementById('agent-edit-id').value=id;
-  document.getElementById('agent-modal-title').textContent='Edit Agent';
-  document.getElementById('agent-name').value=a.name||'';
-  document.getElementById('agent-mobile').value=a.mobile||'';
-  document.getElementById('agent-password').value=a.password||'';
-  document.getElementById('agent-aadhar').value=a.aadhar||'';
-  document.getElementById('agent-address').value=a.address||'';
-  document.getElementById('agent-status').value=a.status||'active';
-  if(a.photoUrl) {
-    document.getElementById('agent-photo-b64').value=a.photoUrl;
-    document.getElementById('agent-photo-preview').src=a.photoUrl;
-    document.getElementById('agent-photo-preview').style.display='block';
-  } else {
-    document.getElementById('agent-photo-b64').value='';
-    document.getElementById('agent-photo-preview').style.display='none';
-  }
-  openModal('modal-agent');
+  document.getElementById('ageid').value=id;document.getElementById('agtitle').textContent='Edit Agent';
+  document.getElementById('agname').value=a.name||'';document.getElementById('agmob').value=a.mobile||'';
+  document.getElementById('agpass').value=a.password||'';document.getElementById('agaadh').value=a.aadhaar||'';
+  document.getElementById('agaddr').value=a.address||'';document.getElementById('agstat').value=a.status||'active';
+  if(a.photoUrl){document.getElementById('agphprev').src=a.photoUrl;document.getElementById('agphprev').style.display='block';}
+  openM('mag');
 }
+async function tgBlock(id,s){await DB.collection('agents').doc(id).update({status:s==='blocked'?'active':'blocked'});toast('Updated','s');}
+async function rstPwd(id){const p=genPwd();if(!confirm(`Reset password to: ${p}?`))return;await DB.collection('agents').doc(id).update({password:p});toast('New Pwd: '+p,'s');}
+async function delAgent(id){if(!confirm('Delete permanently?'))return;await DB.collection('agents').doc(id).delete();toast('Deleted','s');}
 
-function generateReport(type){
-  const now=new Date();
-  let fl=[...allBets],title='';
-  if(type==='daily'){fl=allBets.filter(b=>b.date===getToday());title='Daily — '+getToday();}
-  else if(type==='weekly'){const wk=new Date(now);wk.setDate(wk.getDate()-7);fl=allBets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=wk);title='Weekly (Last 7 Days)';}
-  else{const mo=new Date(now);mo.setDate(mo.getDate()-30);fl=allBets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=mo);title='Monthly (Last 30 Days)';}
-  const tA=fl.reduce((s,b)=>s+parseFloat(b.amount||0),0);
-  const tC=fl.reduce((s,b)=>s+parseFloat(b.commission||0),0);
-  document.getElementById('report-output').innerHTML=`
-    <div class="card" style="margin-bottom:16px;">
-      <div class="card-title">📈 ${title}</div>
-      <div class="grid-3" style="margin-top:12px;">
-        <div class="stat-card"><div class="stat-value">${fl.length}</div><div class="stat-label">Total Bets</div></div>
-        <div class="stat-card"><div class="stat-value" style="font-size:17px;">${fmtINR(tA)}</div><div class="stat-label">Play Amount</div></div>
-        <div class="stat-card"><div class="stat-value" style="font-size:17px;color:#fc8181;">${fmtINR(tC)}</div><div class="stat-label">Commission</div></div>
-      </div>
-      <button class="btn btn-gold btn-sm" style="margin-top:12px;" onclick='exportCSV(${JSON.stringify(fl.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,WinIfPass:b.userWin!==undefined?b.userWin:(b.type==="number"?(b.amount||0)*90:(b.amount||0)*9),Commission:b.commission})))}, "${type}_report")'>⬇ Export CSV</button>
+// COMMISSION SETTLEMENT
+function fillCSSelect(){
+  const sel=document.getElementById('cssel');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- Select Agent --</option>'+allAgents.map(a=>`<option value="${a.id}">${a.name||'?'} (${a.mobile||'--'})</option>`).join('');
+  if(cur)sel.value=cur;
+}
+function loadCommSummary(){
+  const agId=document.getElementById('cssel').value;
+  const period=document.getElementById('csperiod').value;
+  const el=document.getElementById('cssumm');
+  if(!agId){el.style.display='none';return;}
+  let bets=allBets.filter(b=>b.agentId===agId);
+  // Filter by period
+  if(period==='today') bets=bets.filter(b=>b.date===getToday());
+  else if(period==='week'){const wk=new Date(getNow());wk.setDate(wk.getDate()-7);bets=bets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=wk);}
+  else if(period==='month'){const mo=new Date(getNow());mo.setDate(mo.getDate()-30);bets=bets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=mo);}
+  // For 'all' period, show all bets with unsettled commission
+  const totalComm=bets.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const settledForPeriod=allSettlements.filter(s=>s.agentId===agId&&s.period===period).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+  const totalSettled=allSettlements.filter(s=>s.agentId===agId).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+  // Pending = total commission earned - all settlements ever
+  const allTimeComm=allBets.filter(b=>b.agentId===agId).reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const pending=Math.max(0,allTimeComm-totalSettled);
+  document.getElementById('csbt').textContent=bets.length;
+  document.getElementById('csam').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.amount)||0),0));
+  document.getElementById('cscm').textContent=fmtINR(totalComm);
+  document.getElementById('cssd').textContent=fmtINR(totalSettled);
+  document.getElementById('cspend').textContent=fmtINR(pending);
+  document.getElementById('csamount').value=pending>0?Math.round(pending):'';
+  el.style.display='block';
+}
+async function settleCommission(){
+  const agId=document.getElementById('cssel').value;
+  const amt=parseFloat(document.getElementById('csamount').value);
+  const notes=document.getElementById('csnotes').value.trim();
+  const period=document.getElementById('csperiod').value;
+  if(!agId){toast('Select agent','e');return;}
+  if(isNaN(amt)||amt<=0){toast('Enter valid amount','e');return;}
+  const agent=allAgents.find(a=>a.id===agId);
+  if(!confirm(`Settle ₹${amt.toLocaleString('en-IN')} for ${agent?.name||'Agent'}?`))return;
+  try{
+    await DB.collection('settlements').add({
+      agentId:agId, agentName:agent?.name||'', amount:amt, period, notes,
+      date:getToday(), timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast(`Commission ₹${amt.toLocaleString('en-IN')} settled for ${agent?.name}!`,'s');
+    document.getElementById('csamount').value=''; document.getElementById('csnotes').value='';
+    loadCommSummary(); loadCSHistory(); loadAllCommSumm();
+  }catch(e){toast('Error: '+e.message,'e');}
+}
+function loadCSHistory(){
+  const el=document.getElementById('cshistory');
+  const agId=document.getElementById('cssel').value;
+  let setts=allSettlements;
+  if(agId) setts=setts.filter(s=>s.agentId===agId);
+  setts.sort((a,b)=>{const ta=a.timestamp?.toMillis?.()??0,tb2=b.timestamp?.toMillis?.()??0;return tb2-ta;});
+  if(!setts.length){el.innerHTML='<div class="empty-st"><div class="et">No settlements yet</div></div>';return;}
+  el.innerHTML='<div style="max-height:360px;overflow-y:auto">'+setts.map(s=>`<div class="settle-row settled">
+    <div>
+      <div style="font-size:12px;font-weight:600;color:var(--gold)">${s.agentName||'--'}</div>
+      <div style="font-size:10px;color:var(--text3)">${s.date} | Period: ${s.period||'all'}</div>
+      ${s.notes?`<div style="font-size:10px;color:var(--text2)">${s.notes}</div>`:''}
     </div>
-    <div class="card" style="padding:0;overflow:hidden;"><div style="overflow-x:auto;">
-      <table class="history-table" style="min-width:600px;">
-        <thead><tr><th>Date</th><th>Agent</th><th>Customer</th><th>Bet On</th><th>Amount</th><th>Win</th></tr></thead>
-        <tbody>${fl.slice(0,50).map(b=>`
-          <tr>
-            <td>${b.date||'--'}</td><td>${b.agentName||'--'}</td><td>${b.customerName||'Guest'}</td>
-            <td>${b.type==='number'?`Num: ${b.number}`:`Harup: ${b.harup}`}</td>
-            <td style="color:#f0b429;">${fmtINR(b.amount||0)}</td>
-            <td style="color:#68d391;">${fmtINR(b.userWin!==undefined?b.userWin:(b.type==='number'?(b.amount||0)*90:(b.amount||0)*9))}</td>
-          </tr>`).join('')}</tbody>
-      </table></div></div>`;
-  toast('Report generated!','success');
+    <div style="text-align:right">
+      <div style="font-size:16px;font-weight:700;color:#68d391">${fmtINR(s.amount)}</div>
+      <div style="font-size:9px;color:var(--text3)">Settled</div>
+    </div>
+  </div>`).join('')+'</div>';
+}
+function loadAllCommSumm(){
+  const el=document.getElementById('allcsumm');
+  if(!allAgents.length){el.innerHTML='<div class="empty-st"><div class="et">No agents</div></div>';return;}
+  const rows=allAgents.map(a=>{
+    const tC=allBets.filter(b=>b.agentId===a.id).reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+    const settled=allSettlements.filter(s=>s.agentId===a.id).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+    const pending=Math.max(0,tC-settled);
+    return{...a,totalComm:tC,settled,pending};
+  }).sort((a,b)=>b.pending-a.pending);
+  el.innerHTML=`<div style="overflow-x:auto"><table class="tbl">
+    <thead><tr><th>Agent</th><th>Total Commission Earned</th><th>Settled</th><th>Pending</th><th>Action</th></tr></thead>
+    <tbody>${rows.map(a=>`<tr>
+      <td><b>${a.name||'--'}</b><br><span style="font-size:10px;color:#888">${a.mobile||''}</span></td>
+      <td style="color:var(--gold)">${fmtINR(a.totalComm)}</td>
+      <td style="color:#68d391">${fmtINR(a.settled)}</td>
+      <td style="${a.pending>0?'color:#f6ad55;font-weight:700':'color:var(--text3)'}">${fmtINR(a.pending)}${a.pending>0?'<span class="bdg bdg-or" style="margin-left:4px">Pending</span>':''}</td>
+      <td><button class="btn btn-orange btn-sm" onclick="quickSettle('${a.id}',${a.pending})">💸 Settle</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+async function quickSettle(agId,pending){
+  if(pending<=0){toast('No pending commission','i');return;}
+  const agent=allAgents.find(a=>a.id===agId);
+  if(!confirm(`Settle full pending ${fmtINR(pending)} for ${agent?.name}?`))return;
+  try{
+    await DB.collection('settlements').add({
+      agentId:agId,agentName:agent?.name||'',amount:pending,period:'all',notes:'Full settlement',
+      date:getToday(),timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast(`Settled ${fmtINR(pending)} for ${agent?.name}!`,'s');
+    loadAllCommSumm();
+  }catch(e){toast('Error: '+e.message,'e');}
 }
 
-async function toggleBlock(id,status){await db.collection('agents').doc(id).update({status:status==='blocked'?'active':'blocked'});toast('Status updated','success');}
-async function delAgent(id){if(!confirm('Delete permanently?'))return;await db.collection('agents').doc(id).delete();toast('Deleted','success');}
-async function saveSettings(){const r=parseInt(document.getElementById('commission-rate').value);if(!r||r<=0)return toast('Invalid','error');await db.collection('settings').doc('main').set({commissionRate:r},{merge:true});toast('Saved!','success');}
-async function changeAdminPassword(){const p=document.getElementById('admin-new-pass').value;if(p.length<4)return toast('Min 4 chars','error');await db.collection('admins').doc(currentAdmin.id).update({password:p});document.getElementById('admin-new-pass').value='';toast('Updated!','success');}
-function exportResultsCSV(){exportCSV(allResults.map(r=>({Date:r.id,Number:r.number,Harup:r.harup,NumTime:r.numTime,HarupTime:r.harupTime})),'results');}
-function exportBetsCSV(){exportCSV(allBets.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,Win:b.userWin!==undefined?b.userWin:(b.type==='number'?(b.amount||0)*90:(b.amount||0)*9)})),'bets');}
-function exportAgentsCSV(){exportCSV(allAgents.map(a=>({Name:a.name,Mobile:a.mobile,Aadhar:a.aadhar,Address:a.address,Status:a.status})),'agents');}
-async function exportAllJSON(){const blob=new Blob([JSON.stringify({results:allResults,bets:allBets,agents:allAgents},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup.json';a.click();toast('Downloaded!','success');}
-function exportCSV(data,filename){if(!data.length){toast('No data','error');return;}const h=Object.keys(data[0]);const csv=[h.join(','),...data.map(r=>h.map(k=>`"${r[k]||''}""`).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=filename+'.csv';a.click();toast('Exported!','success');}
+// SETTINGS
+async function saveSettings(){
+  const r=parseInt(document.getElementById('srate').value);
+  if(!r||r<=0){toast('Invalid','e');return;}
+  await DB.collection('settings').doc('main').set({commissionRate:r},{merge:true});
+  cS.commissionRate=r; toast('Saved!','s');
+}
+async function changeAdminPwd(){
+  const p=document.getElementById('spass').value;
+  if(p.length<4){toast('Min 4 chars','e');return;}
+  await DB.collection('admins').doc(cA.id).update({password:p});
+  document.getElementById('spass').value=''; toast('Password updated!','s');
+}
+
+// BACKUP
+function loadDBInfo(){
+  document.getElementById('bir').textContent=allResults.length;
+  document.getElementById('bib').textContent=allBets.length;
+  document.getElementById('bia').textContent=allAgents.length;
+  document.getElementById('bis').textContent=allSettlements.length;
+  DB.collection('settings').doc('main').get().then(s=>{if(s.exists&&s.data().lastBackup)document.getElementById('bil').textContent=new Date(s.data().lastBackup).toLocaleString('en-IN');});
+}
+function exportBetsCSV(){
+  exportCSV(allBets.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,AgentMobile:b.agentMobile,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,Commission:b.commission,WinIfPass:b.userWin??(b.type==='number'?(b.amount||0)*90:(b.amount||0)*9)})),'bets');
+}
+async function exportFullJSON(){
+  const blob=new Blob([JSON.stringify({results:allResults,bets:allBets,agents:allAgents.map(a=>({...a,photoUrl:undefined})),settlements:allSettlements,at:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='updarbar_backup.json';a.click();
+  toast('Backup downloaded!','s');
+  await DB.collection('settings').doc('main').set({lastBackup:new Date().toISOString()},{merge:true});
+}
 </script>
 </body>
 </html>
-
-```
