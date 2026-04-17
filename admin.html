@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>UP Darbar — Admin</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.harup-hero-mini{background:linear-gradient(135deg,#0f1a2a,#162030);border:1px solid rgba(49,130,206,.4);border-radius:12px;padding:16px;text-align:center;box-shadow:0 0 16px rgba(49,130,206,.1);}
+.harup-hero-mini .hn{font-family:'Orbitron',monospace;font-size:48px;font-weight:900;color:#63b3ed;}
+.harup-hero-mini .hw{font-family:'Rajdhani',sans-serif;font-size:18px;color:#a0c4ff;margin-top:4px;}
+.tab-btns{display:flex;gap:6px;background:var(--bg2);padding:4px;border-radius:var(--rs);margin-bottom:16px;}
+.tab-btn{flex:1;padding:7px;text-align:center;font-size:12px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .18s;color:var(--text2);border:none;background:transparent;}
+.tab-btn.active{background:var(--gold);color:#000;}
+.tab-btn.active-blue{background:var(--blue);color:#fff;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="common.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="LP" class="login-page">
+  <div class="login-box">
+    <div class="llogo">UP DARBAR</div>
+    <h2 class="ltitle">Admin Login</h2>
+    <p class="lsub">Super Admin Access</p>
+    <div id="lerr" class="alert alert-e" style="display:none;text-align:left"></div>
+    <div class="fg"><label class="fl">Mobile</label><input type="tel" id="lm" class="fi" placeholder="9876543210" maxlength="10"/></div>
+    <div class="fg"><label class="fl">Password</label><input type="password" id="lp" class="fi" placeholder="Password"/></div>
+    <button class="btn btn-gold btn-full btn-lg" onclick="doLogin()" id="lbtn">LOGIN</button>
+    <p style="font-size:11px;color:var(--text3);margin-top:12px">Default: <b style="color:var(--gold)">9999999999</b> / <b style="color:var(--gold)">admin123</b></p>
+    <p style="margin-top:6px"><a href="index.html" style="color:var(--text3);font-size:11px">← Home</a></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="APP" style="display:none">
+<nav class="navbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+    <div class="nav-brand">UP DARBAR <small>Super Admin</small></div>
+  </div>
+  <div class="nav-links">
+    <span id="aname" style="font-size:11px;color:var(--gold)"></span>
+    <a href="index.html" class="nb nb-out">Home</a>
+    <button class="nb nb-red" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+<div class="lbar"><div id="lbd" class="lbd">--</div><div id="lbt" class="lbt">--:--:--</div></div>
+
+<div class="app-layout">
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-label" style="margin-top:8px">Main</div>
+  <button class="slink active" onclick="SP('dash')" id="nav-dash"><span class="si">📊</span>Dashboard</button>
+  <button class="slink" onclick="SP('opennum')" id="nav-opennum"><span class="si">🎯</span>Open Number</button>
+  <button class="slink" onclick="SP('openharup')" id="nav-openharup"><span class="si">🅰️</span>Open Harup</button>
+  <button class="slink" onclick="SP('results')" id="nav-results"><span class="si">📅</span>Results</button>
+  <button class="slink" onclick="SP('schedule')" id="nav-schedule"><span class="si">⏰</span>Schedule</button>
+  <div class="sidebar-label">Bets</div>
+  <button class="slink" onclick="SP('bets')" id="nav-bets"><span class="si">💰</span>Live Bets</button>
+  <button class="slink" onclick="SP('risk')" id="nav-risk"><span class="si">📋</span>Risk Summary</button>
+  <button class="slink" onclick="SP('agentrpt')" id="nav-agentrpt"><span class="si">👤</span>Agent Reports</button>
+  <button class="slink" onclick="SP('reports')" id="nav-reports"><span class="si">📈</span>Reports</button>
+  <div class="sidebar-label">System</div>
+  <button class="slink" onclick="SP('agents')" id="nav-agents"><span class="si">👥</span>Agents</button>
+  <button class="slink" onclick="SP('commission')" id="nav-commission"><span class="si">💸</span>Commission Settle</button>
+  <button class="slink" onclick="SP('settings')" id="nav-settings"><span class="si">⚙️</span>Settings</button>
+  <button class="slink" onclick="SP('backup')" id="nav-backup"><span class="si">💾</span>Backup</button>
+</div>
+
+<div class="page-content" id="PC">
+
+<!-- DASHBOARD -->
+<div id="pg-dash">
+  <div class="sh"><h2 class="st">📊 Dashboard</h2><span id="dupd" style="font-size:11px;color:var(--text3)"></span></div>
+  <div class="g4" style="margin-bottom:12px">
+    <div class="sc"><div class="sic">🎯</div><div class="sv" id="dnum">--</div><div class="sl">Today's Number</div></div>
+    <div class="sc" style="border-color:rgba(49,130,206,.3)"><div class="sic">🅰️</div><div class="sv" id="dharup" style="color:#63b3ed">--</div><div class="sl">Today's Harup</div></div>
+    <div class="sc"><div class="sic">👥</div><div class="sv" id="dagents">0</div><div class="sl">Agents</div></div>
+    <div class="sc"><div class="sic">🎲</div><div class="sv" id="dbets">0</div><div class="sl">Bets Today</div></div>
+  </div>
+  <div class="g3" style="margin-bottom:12px">
+    <div class="sc"><div class="sic">💰</div><div class="sv" id="damt" style="font-size:16px">₹0</div><div class="sl">Amount Today</div></div>
+    <div class="sc"><div class="sic">💸</div><div class="sv" id="dcomm" style="font-size:16px">₹0</div><div class="sl">Commission Today</div></div>
+    <div class="card card-g" style="padding:14px;text-align:center">
+      <div class="ctitle" style="justify-content:center;font-size:11px">⏱️ Opens To Public In</div>
+      <div class="countdown" id="dcd">--:--:--</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ctitle" style="margin-bottom:8px">⚡ Live Bet Feed <span class="ldot"></span></div>
+    <div id="dfeed"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Quick Actions</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="SP('opennum')">🎯 Open Number</button>
+      <button class="btn btn-blue" onclick="SP('openharup')">🅰️ Open Harup</button>
+      <button class="btn btn-green" onclick="SP('risk')">📋 Risk Summary</button>
+      <button class="btn btn-orange" onclick="SP('commission')">💸 Commission</button>
+      <button class="btn btn-purple" onclick="SP('agents')">👥 Agents</button>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN NUMBER -->
+<div id="pg-opennum" style="display:none">
+  <div class="sh"><h2 class="st">🎯 Open Number</h2></div>
+  <div class="g2">
+    <div class="card card-g">
+      <div class="ctitle">Open Today's Number</div>
+      <div class="alert alert-i" style="margin-bottom:12px;font-size:12px">Admin ko turant dikhega. Public/Agent ko open time par dikhega (default 6 PM).</div>
+      <div class="fg"><label class="fl">Number (00–99) *</label><input type="number" id="onn" class="fi" min="0" max="99" placeholder="45"/></div>
+      <div class="fg"><label class="fl">Open Time (Optional — default 6:00 PM)</label><input type="time" id="ont" class="fi"/></div>
+      <button class="btn btn-gold btn-full btn-lg" onclick="openNumber()">✅ Save & Open Number</button>
+    </div>
+    <div class="card"><div class="ctitle">Recent Numbers</div><div id="rrecent"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>
+</div>
+
+<!-- OPEN HARUP — New Section, same as Number but for Harup -->
+<div id="pg-openharup" style="display:none">
+  <div class="sh"><h2 class="st">🅰️ Open Harup</h2></div>
+  <div class="g2">
+    <div class="card" style="border-color:rgba(49,130,206,.4);box-shadow:0 0 18px rgba(49,130,206,.1)">
+      <div class="ctitle" style="color:#63b3ed">Open Today's Harup (Last Digit — 0-9)</div>
+      <div class="alert alert-i" style="margin-bottom:12px;font-size:12px">Harup = Number ka last digit. e.g. Number 45 → Harup 5. Admin ko turant dikhega. Public/Agent ko open time par dikhega.</div>
+      <div class="fg">
+        <label class="fl">Harup Number (0–9) *</label>
+        <input type="number" id="ohn" class="fi" min="0" max="9" placeholder="5" oninput="previewHarupWord()"/>
+        <div id="harup-preview" style="margin-top:6px;font-family:'Orbitron',monospace;font-size:18px;color:#63b3ed;display:none"></div>
+      </div>
+      <div class="fg"><label class="fl">Open Time (Optional — default 6:00 PM)</label><input type="time" id="oht" class="fi"/></div>
+      <button class="btn btn-blue btn-full btn-lg" onclick="openHarup()">✅ Save & Open Harup</button>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ctitle" style="color:#63b3ed">Today's Harup Preview</div>
+        <div class="harup-hero-mini">
+          <div class="hn" id="dhnum-preview">--</div>
+          <div class="hw" id="dhword-preview">Harup not set yet</div>
+          <div style="font-size:11px;color:#5a7a9a;margin-top:6px" id="dhtime-preview">--</div>
+        </div>
+      </div>
+      <div class="card"><div class="ctitle">Recent Harups</div><div id="rrecenth"><div class="loading"><div class="spinner"></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="pg-results" style="display:none">
+  <div class="sh">
+    <h2 class="st">📅 All Results</h2>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-gold btn-sm" onclick="exportCSV(allResults.map(r=>({Date:r.date,Number:r.number,Word:r.numberWord,Time:r.time})),'numbers')">⬇ Numbers CSV</button>
+      <button class="btn btn-blue btn-sm" onclick="exportCSV(allHarupResults.map(r=>({Date:r.date,Harup:r.harup,Word:r.harupWord,Time:r.time})),'harups')">⬇ Harups CSV</button>
+    </div>
+  </div>
+  <!-- Tabs -->
+  <div class="tab-btns">
+    <button class="tab-btn active" id="tab-num" onclick="switchResultTab('num')">🎯 Numbers</button>
+    <button class="tab-btn" id="tab-harup" onclick="switchResultTab('harup')">🅰️ Harups</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="rload" class="loading"><div class="spinner"></div></div>
+    <div id="results-num-section">
+      <div style="overflow-x:auto"><table class="tbl" id="rtbl" style="display:none"><thead><tr><th>Date</th><th>Number</th><th>Word</th><th>Time</th><th>Actions</th></tr></thead><tbody id="rbody"></tbody></table></div>
+    </div>
+    <div id="results-harup-section" style="display:none">
+      <div style="overflow-x:auto"><table class="tbl" id="rhtbl" style="display:none"><thead><tr><th>Date</th><th>Harup</th><th>Word</th><th>Time</th><th>Actions</th></tr></thead><tbody id="rhbody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div id="pg-schedule" style="display:none">
+  <div class="sh"><h2 class="st">⏰ Auto Schedule</h2></div>
+  <div class="tab-btns">
+    <button class="tab-btn active" id="stab-num" onclick="switchSchedTab('num')">🎯 Schedule Number</button>
+    <button class="tab-btn" id="stab-harup" onclick="switchSchedTab('harup')">🅰️ Schedule Harup</button>
+  </div>
+  <div class="g2">
+    <!-- Number Schedule -->
+    <div id="sched-num-form" class="card card-g">
+      <div class="ctitle">Schedule Future Number</div>
+      <div class="fg"><label class="fl">Number (00–99) *</label><input type="number" id="scn" class="fi" min="0" max="99" placeholder="45"/></div>
+      <div class="fg"><label class="fl">Date *</label><input type="date" id="scd" class="fi"/></div>
+      <div class="fg"><label class="fl">Time *</label><input type="time" id="sct" class="fi"/></div>
+      <button class="btn btn-gold btn-full" onclick="schedNum()">📅 Schedule Number</button>
+    </div>
+    <!-- Harup Schedule -->
+    <div id="sched-harup-form" class="card" style="display:none;border-color:rgba(49,130,206,.4)">
+      <div class="ctitle" style="color:#63b3ed">Schedule Future Harup</div>
+      <div class="fg"><label class="fl">Harup (0–9) *</label><input type="number" id="sch" class="fi" min="0" max="9" placeholder="5"/></div>
+      <div class="fg"><label class="fl">Date *</label><input type="date" id="schd" class="fi"/></div>
+      <div class="fg"><label class="fl">Time *</label><input type="time" id="scht" class="fi"/></div>
+      <button class="btn btn-blue btn-full" onclick="schedHarup()">📅 Schedule Harup</button>
+    </div>
+    <div class="card"><div class="ctitle">Pending Schedules</div><div id="sclist"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>
+</div>
+
+<!-- LIVE BETS -->
+<div id="pg-bets" style="display:none">
+  <div class="sh">
+    <h2 class="st">💰 Live Bet Monitor</h2>
+    <button class="btn btn-gold btn-sm" onclick="exportBetsCSV()">⬇ CSV</button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="sbar">
+      <input type="text" id="bfag" class="sinput" placeholder="Agent name..." oninput="filterBets()"/>
+      <input type="text" id="bfcu" class="sinput" placeholder="Customer name..." oninput="filterBets()"/>
+      <input type="text" id="bfnu" class="sinput" placeholder="Number / Harup..." oninput="filterBets()"/>
+      <input type="text" id="bfda" class="sinput" placeholder="Date DD-MM-YYYY..." oninput="filterBets()"/>
+      <select id="bfty" class="sinput" onchange="filterBets()" style="max-width:145px">
+        <option value="">All Types</option>
+        <option value="number">Numbers Only</option>
+        <option value="harup">Harups Only</option>
+      </select>
+    </div>
+    <div style="font-size:11px;color:var(--text2)">
+      Showing <strong id="bcnt" style="color:var(--gold)">0</strong> |
+      Amount: <strong id="bamt" style="color:#68d391">₹0</strong> |
+      Commission: <strong id="bcom" style="color:#fc8181">₹0</strong>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="bload" class="loading"><div class="spinner"></div>Loading bets...</div>
+    <div style="overflow-x:auto">
+      <table class="tbl" id="btbl" style="display:none;min-width:820px">
+        <thead><tr><th>Agent</th><th>Customer</th><th>Type</th><th>Bet On</th><th>Amount</th><th>Win (If Pass)</th><th>Commission</th><th>Date</th><th>Time</th></tr></thead>
+        <tbody id="bbody"></tbody>
+      </table>
+    </div>
+    <div id="bempty" class="empty-st" style="display:none"><div class="ei">🎲</div><div class="et">No bets found</div></div>
+  </div>
+</div>
+
+<!-- RISK -->
+<div id="pg-risk" style="display:none">
+  <div class="sh"><h2 class="st">📋 Risk Management</h2><button class="btn btn-gold" onclick="loadRisk()">🔄 Refresh</button></div>
+  <div class="alert alert-w" style="margin-bottom:12px;font-size:12px">🟢 <b>Green</b>=Safest | 🟡 <b>Gold</b>=Medium | 🔴 <b>Red</b>=High Risk</div>
+  <div class="card" id="rtotals" style="margin-bottom:12px;display:none">
+    <div class="ctitle">Today's Summary</div>
+    <div class="g4">
+      <div class="sc"><div class="sv" id="rtbt">0</div><div class="sl">Bets</div></div>
+      <div class="sc"><div class="sv" id="rtam" style="font-size:15px">₹0</div><div class="sl">Play Amount</div></div>
+      <div class="sc"><div class="sv" id="rtcm" style="font-size:15px;color:#fc8181">₹0</div><div class="sl">Commission</div></div>
+      <div class="sc"><div class="sv" id="rtmx" style="font-size:15px;color:#fc8181">₹0</div><div class="sl">Max Risk</div></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="card" style="margin-bottom:10px"><div class="ctitle" style="color:#68d391">🟢 0-Bet Numbers (Safe)</div><div id="rzeronums" style="display:flex;flex-wrap:wrap;gap:4px;min-height:24px"></div></div>
+      <div class="card"><div class="ctitle">🔢 Number Liability (Safest First)</div><div id="ranums" style="max-height:440px;overflow-y:auto"></div></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px"><div class="ctitle" style="color:#63b3ed">🟢 0-Bet Harups (Safe)</div><div id="rzeroh" style="display:flex;flex-wrap:wrap;gap:4px;min-height:24px"></div></div>
+      <div class="card"><div class="ctitle">🅰️ Harup Liability (Safest First)</div><div id="raharups" style="max-height:440px;overflow-y:auto"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENT REPORTS -->
+<div id="pg-agentrpt" style="display:none">
+  <div class="sh"><h2 class="st">👤 Agent Reports</h2></div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="sbar">
+      <select id="arsel" class="sinput" onchange="loadAR()" style="flex:2;min-width:200px"><option value="">-- Select Agent --</option></select>
+      <input type="text" id="arfrom" class="sinput" placeholder="From DD-MM-YYYY" oninput="loadAR()"/>
+      <input type="text" id="arto" class="sinput" placeholder="To DD-MM-YYYY" oninput="loadAR()"/>
+    </div>
+  </div>
+  <div id="arsumm" class="g4" style="margin-bottom:10px;display:none">
+    <div class="sc"><div class="sv" id="arbt">0</div><div class="sl">Bets</div></div>
+    <div class="sc"><div class="sv" id="aram" style="font-size:15px">₹0</div><div class="sl">Amount</div></div>
+    <div class="sc"><div class="sv" id="arcm" style="font-size:15px;color:#68d391">₹0</div><div class="sl">Commission</div></div>
+    <div class="sc"><div class="sv" id="arwn" style="font-size:15px;color:#fc8181">₹0</div><div class="sl">Win Liability</div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="arload" class="empty-st"><div class="ei">👤</div><div class="et">Select agent</div></div>
+    <div style="overflow-x:auto"><table class="tbl" id="artbl" style="display:none;min-width:620px"><thead><tr><th>Date</th><th>Customer</th><th>Type</th><th>Bet On</th><th>Amount</th><th>Win</th><th>Comm</th><th>Time</th></tr></thead><tbody id="arbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div id="pg-reports" style="display:none">
+  <div class="sh"><h2 class="st">📈 Reports</h2></div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ctitle">Generate Report</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="genRpt('daily')">📅 Daily</button>
+      <button class="btn btn-blue" onclick="genRpt('weekly')">📆 Weekly (7d)</button>
+      <button class="btn btn-green" onclick="genRpt('monthly')">🗓 Monthly (30d)</button>
+    </div>
+  </div>
+  <div id="rptout"></div>
+</div>
+
+<!-- AGENTS -->
+<div id="pg-agents" style="display:none">
+  <div class="sh">
+    <h2 class="st">👥 Agent Management</h2>
+    <button class="btn btn-gold" onclick="openM('mag');resetAF()">+ New Agent</button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="sbar">
+      <input type="text" id="agq" class="sinput" placeholder="🔍 Name, mobile, Aadhaar..." oninput="filterAgents()"/>
+      <select id="agst" class="sinput" onchange="filterAgents()" style="max-width:140px">
+        <option value="">All Status</option><option value="active">Active</option><option value="blocked">Blocked</option>
+      </select>
+    </div>
+  </div>
+  <div id="agrid" class="gauto"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+</div>
+
+<!-- COMMISSION -->
+<div id="pg-commission" style="display:none">
+  <div class="sh"><h2 class="st">💸 Commission Settlement</h2></div>
+  <div class="alert alert-i" style="margin-bottom:12px;font-size:12px">Agent ka commission settle karein. Settle hone ke baad agent ka pending balance reduce ho jayega.</div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ctitle">Quick Settle</div>
+      <div class="fg"><label class="fl">Select Agent</label><select id="cssel" class="fsel" onchange="loadCommSummary()"><option value="">-- Select Agent --</option></select></div>
+      <div class="fg"><label class="fl">Period</label>
+        <select id="csperiod" class="fsel" onchange="loadCommSummary()">
+          <option value="today">Today</option><option value="week">This Week (7d)</option>
+          <option value="month">This Month (30d)</option><option value="all">All Time</option>
+        </select>
+      </div>
+      <div id="cssumm" style="display:none;margin-bottom:14px">
+        <div class="brow"><span>Total Bets</span><strong id="csbt" style="color:var(--gold)">0</strong></div>
+        <div class="brow"><span>Total Amount</span><strong id="csam" style="color:var(--gold)">₹0</strong></div>
+        <div class="brow"><span>Commission Earned</span><strong id="cscm" style="color:#68d391;font-size:16px">₹0</strong></div>
+        <div class="brow"><span>Already Settled</span><strong id="cssd" style="color:#fc8181">₹0</strong></div>
+        <div class="brow" style="background:rgba(240,180,41,.08);border:1px solid var(--borderg);border-radius:var(--rs)"><span style="font-weight:700">Pending</span><strong id="cspend" style="color:var(--gold);font-size:18px;font-family:Orbitron,monospace">₹0</strong></div>
+      </div>
+      <div class="fg"><label class="fl">Settlement Amount ₹</label><input type="number" id="csamount" class="fi" placeholder="Amount to settle" min="1"/></div>
+      <div class="fg"><label class="fl">Notes</label><input type="text" id="csnotes" class="fi" placeholder="e.g. April week 1"/></div>
+      <button class="btn btn-orange btn-full btn-lg" onclick="settleCommission()">✅ Settle Commission</button>
+    </div>
+    <div class="card"><div class="ctitle">Settlement History</div><div id="cshistory"><div class="loading"><div class="spinner"></div></div></div></div>
+  </div>
+  <div class="card"><div class="ctitle">All Agents — Pending Commission</div><div id="allcsumm"><div class="loading"><div class="spinner"></div></div></div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="pg-settings" style="display:none">
+  <div class="sh"><h2 class="st">⚙️ Settings</h2></div>
+  <div class="g2">
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ctitle">Commission Rate</div>
+        <div class="fg" style="max-width:220px"><label class="fl">Commission % (Default 10%)</label><input type="number" id="srate" class="fi" min="1" max="50" value="10"/></div>
+        <button class="btn btn-gold btn-sm" onclick="saveSettings()">💾 Save</button>
+      </div>
+      <div class="card">
+        <div class="ctitle">Change Admin Password</div>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:10px">Password directly Firebase mein save hoga (browser storage nahi).</p>
+        <div class="fg"><label class="fl">New Password</label><input type="password" id="spass" class="fi" placeholder="Min 4 characters"/></div>
+        <div class="fg"><label class="fl">Confirm Password</label><input type="password" id="spass2" class="fi" placeholder="Same again"/></div>
+        <button class="btn btn-red btn-sm" onclick="changeAdminPwd()">🔑 Update Password (Firebase)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BACKUP -->
+<div id="pg-backup" style="display:none">
+  <div class="sh"><h2 class="st">💾 Backup & Export</h2></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Export Data</div>
+      <div style="display:flex;flex-direction:column;gap:9px;margin-top:6px">
+        <button class="btn btn-gold" onclick="exportCSV(allResults.map(r=>({Date:r.date,Number:r.number,Word:r.numberWord,Time:r.time})),'results')">📥 Numbers CSV</button>
+        <button class="btn btn-blue" onclick="exportCSV(allHarupResults.map(r=>({Date:r.date,Harup:r.harup,Word:r.harupWord,Time:r.time})),'harups')">📥 Harups CSV</button>
+        <button class="btn btn-green" onclick="exportBetsCSV()">📥 All Bets CSV</button>
+        <button class="btn btn-purple" onclick="exportCSV(allAgents.map(a=>({Name:a.name,Mobile:a.mobile,Aadhaar:a.aadhaar||'',Address:a.address||'',Status:a.status||'active'})),'agents')">📥 Agents CSV</button>
+        <hr class="dv"/>
+        <button class="btn btn-gray" onclick="exportFullJSON()">📥 Full Backup JSON</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Database Info</div>
+      <div style="margin-top:6px">
+        <div class="brow"><span>Numbers</span><strong id="bir">-</strong></div>
+        <div class="brow"><span>Harups</span><strong id="birh">-</strong></div>
+        <div class="brow"><span>Bets</span><strong id="bib">-</strong></div>
+        <div class="brow"><span>Agents</span><strong id="bia">-</strong></div>
+        <div class="brow"><span>Settlements</span><strong id="bis">-</strong></div>
+        <div class="brow"><span>Last Backup</span><strong id="bil">Never</strong></div>
+      </div>
+      <button class="btn btn-gray btn-sm btn-full" style="margin-top:10px" onclick="loadDBInfo()">🔄 Refresh</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- PC -->
+</div><!-- app-layout -->
+</div><!-- APP -->
+
+<!-- MODALS -->
+<!-- Agent Create/Edit Modal — with Aadhaar & Photo -->
+<div id="mag" class="moverlay" style="display:none" onclick="if(event.target===this)closeM('mag')">
+  <div class="modal">
+    <div class="modal-title" id="agtitle">Create New Agent</div>
+    <input type="hidden" id="ageid"/>
+    <div class="g2">
+      <div class="fg"><label class="fl">Full Name *</label><input type="text" id="agname" class="fi" placeholder="Agent Full Name"/></div>
+      <div class="fg"><label class="fl">Mobile * (Login ID)</label><input type="tel" id="agmob" class="fi" placeholder="9876543210" maxlength="10"/></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Password *</label>
+      <div style="display:flex;gap:7px"><input type="text" id="agpass" class="fi" placeholder="Set password"/><button class="btn btn-gray btn-sm" onclick="document.getElementById('agpass').value=genPwd()">Auto</button></div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label class="fl">Aadhaar Number</label><input type="text" id="agaadh" class="fi" placeholder="XXXX XXXX XXXX" maxlength="14" oninput="fmtAadhar(this)"/></div>
+      <div class="fg"><label class="fl">Status</label><select id="agstat" class="fsel"><option value="active">Active</option><option value="blocked">Blocked</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Address</label><textarea id="agaddr" class="fta" style="min-height:56px" placeholder="Full address..."></textarea></div>
+    <div class="fg">
+      <label class="fl">Profile Photo (Optional)</label>
+      <input type="file" id="agphoto" class="fi" accept="image/*" onchange="prevPhoto()"/>
+      <img id="agphprev" class="pp" src="" alt="Photo Preview"/>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Photo Firebase mein save hoga</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeM('mag')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveAgent()">💾 Save Agent</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Number Result -->
+<div id="mer" class="moverlay" style="display:none" onclick="if(event.target===this)closeM('mer')">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title">Edit Number Result</div>
+    <input type="hidden" id="erid"/>
+    <div class="fg"><label class="fl">Number (0–99)</label><input type="number" id="ern" class="fi" min="0" max="99"/></div>
+    <div class="fg"><label class="fl">Date (DD-MM-YYYY)</label><input type="text" id="erd" class="fi" placeholder="DD-MM-YYYY"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeM('mer')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveEditRes()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Harup Result -->
+<div id="merh" class="moverlay" style="display:none" onclick="if(event.target===this)closeM('merh')">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title" style="color:#63b3ed">Edit Harup Result</div>
+    <input type="hidden" id="erhid"/>
+    <div class="fg"><label class="fl">Harup (0–9)</label><input type="number" id="erhn" class="fi" min="0" max="9"/></div>
+    <div class="fg"><label class="fl">Date (DD-MM-YYYY)</label><input type="text" id="erhd" class="fi" placeholder="DD-MM-YYYY"/></div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeM('merh')">Cancel</button>
+      <button class="btn btn-blue" onclick="saveEditHarupRes()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- Agent Profile -->
+<div id="map" class="moverlay" style="display:none" onclick="if(event.target===this)closeM('map')">
+  <div class="modal"><div class="modal-title">Agent Profile</div><div id="apbody"></div><div class="modal-footer"><button class="btn btn-gray" onclick="closeM('map')">Close</button></div></div>
+</div>
+
+<div id="twrap" class="twrap"></div>
+
+<script>
+// ================================================
+// ADMIN APP — COMPLETE
+// ================================================
+let cA=null, allBets=[], allAgents=[], allResults=[], allHarupResults=[], allSettlements=[];
+let cS={commissionRate:10}, schedT=null;
+
+function fmtAadhar(el){
+  let v=el.value.replace(/\D/g,'').slice(0,12);
+  el.value=v.replace(/(\d{4})(?=\d)/g,'$1 ').trim();
+}
+
+function SP(p){
+  document.querySelectorAll('#PC > div').forEach(d=>d.style.display='none');
+  const pg=document.getElementById('pg-'+p);if(pg)pg.style.display='block';
+  document.querySelectorAll('.slink').forEach(l=>l.classList.remove('active'));
+  const n=document.getElementById('nav-'+p);if(n)n.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  if(p==='risk')loadRisk();
+  if(p==='backup')loadDBInfo();
+  if(p==='agentrpt')fillARSelect();
+  if(p==='commission'){fillCSSelect();loadAllCommSumm();loadCSHistory();}
+  if(p==='bets')renderBets();
+  if(p==='openharup')updateHarupPreview();
+}
+
+function switchResultTab(t){
+  document.getElementById('results-num-section').style.display=t==='num'?'block':'none';
+  document.getElementById('results-harup-section').style.display=t==='harup'?'block':'none';
+  document.getElementById('tab-num').className='tab-btn'+(t==='num'?' active':'');
+  document.getElementById('tab-harup').className='tab-btn'+(t==='harup'?' active-blue':'');
+  if(t==='harup')renderHarupResults();else renderResults();
+}
+
+function switchSchedTab(t){
+  document.getElementById('sched-num-form').style.display=t==='num'?'block':'none';
+  document.getElementById('sched-harup-form').style.display=t==='harup'?'block':'none';
+  document.getElementById('stab-num').className='tab-btn'+(t==='num'?' active':'');
+  document.getElementById('stab-harup').className='tab-btn'+(t==='harup'?' active-blue':'');
+}
+
+function startClock(){
+  setInterval(()=>{
+    const now=getNow();
+    document.getElementById('lbt').textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+    document.getElementById('lbd').textContent=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',weekday:'long'});
+    const t6=getNow();t6.setHours(18,0,0,0);
+    const diff=t6-now;const cdEl=document.getElementById('dcd');
+    if(diff>0){const h=Math.floor((diff/3600000)%24),m=Math.floor((diff/60000)%60),s=Math.floor((diff/1000)%60);cdEl.textContent=`${p2(h)}:${p2(m)}:${p2(s)}`;cdEl.style.color='var(--gold)';}
+    else{cdEl.textContent='Opened to Public';cdEl.style.color='#68d391';}
+  },1000);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('LP').style.display!=='none')doLogin();});
+
+async function doLogin(){
+  const m=document.getElementById('lm').value.trim(),p=document.getElementById('lp').value.trim();
+  const err=document.getElementById('lerr');err.style.display='none';
+  if(!m||!p){err.style.display='block';err.textContent='Enter mobile and password.';return;}
+  const btn=document.getElementById('lbtn');btn.disabled=true;btn.textContent='Verifying...';
+  try{
+    const snap=await DB.collection('admins').where('mobile','==',m).where('password','==',p).get();
+    if(!snap.empty){cA={id:snap.docs[0].id,...snap.docs[0].data()};loginOK();}
+    else if(m==='9999999999'&&p==='admin123'){
+      const ref=await DB.collection('admins').add({name:'Super Admin',mobile:'9999999999',password:'admin123',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      cA={id:ref.id,name:'Super Admin',mobile:m};loginOK();
+    }else{err.style.display='block';err.textContent='Invalid. Try 9999999999 / admin123';}
+  }catch(e){err.style.display='block';err.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='LOGIN';
+}
+
+function loginOK(){
+  document.getElementById('LP').style.display='none';
+  document.getElementById('APP').style.display='block';
+  document.getElementById('aname').textContent=cA.name||'Admin';
+  startClock();SP('dash');loadData();
+}
+
+function doLogout(){
+  cA=null;
+  document.getElementById('LP').style.display='flex';
+  document.getElementById('APP').style.display='none';
+  document.getElementById('lm').value='';document.getElementById('lp').value='';
+}
+
+// DATA LOADERS
+function loadData(){
+  DB.collection('settings').doc('main').onSnapshot(s=>{
+    if(s.exists)cS=s.data();
+    const el=document.getElementById('srate');if(el&&cS.commissionRate)el.value=cS.commissionRate;
+  });
+
+  // Results (Numbers)
+  DB.collection('results').orderBy('timestamp','desc').onSnapshot(s=>{
+    allResults=s.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('bir').textContent=allResults.length;
+    renderResults();renderRecent();
+    const tn=allResults.find(r=>r.date===getToday());
+    document.getElementById('dnum').textContent=tn?p2(tn.number):'--';
+  },e=>console.error('Results:',e));
+
+  // Harup Results (new collection)
+  DB.collection('harup_results').orderBy('timestamp','desc').onSnapshot(s=>{
+    allHarupResults=s.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('birh').textContent=allHarupResults.length;
+    renderHarupResults();renderRecentH();
+    const th=allHarupResults.find(r=>r.date===getToday());
+    document.getElementById('dharup').textContent=th!==undefined?String(th.harup):'--';
+    updateHarupPreview();
+  },()=>{});
+
+  // Agents — NO orderBy
+  DB.collection('agents').onSnapshot(s=>{
+    allAgents=s.docs.map(d=>({id:d.id,...d.data()}));
+    allAgents.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    document.getElementById('dagents').textContent=allAgents.length;
+    document.getElementById('bia').textContent=allAgents.length;
+    renderAgents(allAgents);fillARSelect();fillCSSelect();
+  },e=>console.error('Agents:',e));
+
+  // Bets — NO orderBy (key fix!)
+  DB.collection('bets').onSnapshot(s=>{
+    allBets=sortBets(s.docs.map(d=>({id:d.id,...d.data()})));
+    document.getElementById('bib').textContent=allBets.length;
+    updateBetStats();renderBets();renderFeed();
+    if(document.getElementById('pg-risk').style.display==='block')loadRisk();
+    if(document.getElementById('pg-commission').style.display==='block')loadAllCommSumm();
+  },e=>{
+    console.error('Bets error:',e);
+    document.getElementById('bload').innerHTML=`<div style="padding:20px;color:#fc8181"><b>⚠️ Bets load error:</b><br>${e.message}<br><br><b>Fix:</b> Firebase Console → Firestore → Rules → add:<br><code style="color:#68d391;font-size:10px">match /bets/{id}{allow read,write:if true;}</code></div>`;
+  });
+
+  // Settlements
+  DB.collection('settlements').onSnapshot(s=>{
+    allSettlements=s.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('bis').textContent=allSettlements.length;
+  },()=>{});
+
+  loadSchedules();
+}
+
+function updateBetStats(){
+  const today=getToday(),tb=allBets.filter(b=>b.date===today);
+  document.getElementById('dbets').textContent=tb.length;
+  const tA=tb.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+  const tC=tb.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  document.getElementById('damt').textContent=fmtINR(tA);
+  document.getElementById('dcomm').textContent=fmtINR(tC);
+  document.getElementById('bamt').textContent=fmtINR(tA);
+  document.getElementById('bcom').textContent=fmtINR(tC);
+  document.getElementById('dupd').textContent='Updated: '+getTS();
+}
+
+// FEED
+function renderFeed(){
+  const el=document.getElementById('dfeed');const latest=allBets.slice(0,12);
+  if(!latest.length){el.innerHTML='<div class="empty-st" style="padding:16px"><div class="et">No bets yet.</div></div>';return;}
+  el.innerHTML=`<div style="overflow-x:auto"><table class="tbl" style="min-width:560px">
+    <thead><tr><th>Agent</th><th>Customer</th><th>Bet On</th><th>Amount</th><th>Win</th><th>Time</th></tr></thead>
+    <tbody>${latest.map(b=>`<tr>
+      <td><b>${b.agentName||'--'}</b><br><span style="color:#888;font-size:10px">${b.agentMobile||''}</span></td>
+      <td style="color:var(--gold);font-weight:600">${b.customerName||'Guest'}</td>
+      <td>${b.type==='number'?`<span class="nb2" style="font-size:12px">Num: ${p2(b.number??0)}</span>`:`<span class="hb2">Harup: ${b.harup??'?'}</span>`}</td>
+      <td style="color:var(--gold);font-weight:700">${fmtINR(b.amount)}</td>
+      <td style="color:#68d391">${fmtINR(b.userWin??((b.type==='number'?(b.amount||0)*90:(b.amount||0)*9)))}</td>
+      <td style="font-size:10px;color:#888">${b.date||'--'}<br>${b.time||'--'}</td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+// OPEN NUMBER
+async function openNumber(){
+  const n=parseInt(document.getElementById('onn').value);
+  if(isNaN(n)||n<0||n>99){toast('Enter valid number 0–99','e');return;}
+  const ti=document.getElementById('ont').value;
+  const tStr=ti?fmtT(ti):getTS();
+  try{
+    await DB.collection('results').add({number:n,numberWord:gW(n),date:getToday(),time:tStr,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    toast(`Number ${p2(n)} (${gW(n)}) saved! Visible at ${tStr}`,'s');
+    document.getElementById('onn').value='';document.getElementById('ont').value='';
+  }catch(e){toast('Error: '+e.message,'e');}
+}
+
+// OPEN HARUP — New function
+function previewHarupWord(){
+  const h=parseInt(document.getElementById('ohn').value);
+  const el=document.getElementById('harup-preview');
+  if(!isNaN(h)&&h>=0&&h<=9){el.textContent=`H${h} — ${gHW(h)}`;el.style.display='block';}
+  else{el.style.display='none';}
+}
+
+function updateHarupPreview(){
+  const th=allHarupResults.find(r=>r.date===getToday());
+  const he=document.getElementById('dhnum-preview');
+  const we=document.getElementById('dhword-preview');
+  const te=document.getElementById('dhtime-preview');
+  if(he&&we&&te){
+    if(th){he.textContent=String(th.harup);we.textContent=gHW(th.harup);te.textContent='Set at: '+fmtT(th.time);}
+    else{he.textContent='--';we.textContent='Harup not set yet';te.textContent='--';}
+  }
+}
+
+async function openHarup(){
+  const h=parseInt(document.getElementById('ohn').value);
+  if(isNaN(h)||h<0||h>9){toast('Enter valid harup 0–9','e');return;}
+  const ti=document.getElementById('oht').value;
+  const tStr=ti?fmtT(ti):getTS();
+  try{
+    await DB.collection('harup_results').add({harup:h,harupWord:gHW(h),date:getToday(),time:tStr,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    toast(`Harup ${h} (${gHW(h)}) saved! Visible at ${tStr}`,'s');
+    document.getElementById('ohn').value='';document.getElementById('oht').value='';
+    document.getElementById('harup-preview').style.display='none';
+    updateHarupPreview();
+  }catch(e){toast('Error: '+e.message,'e');}
+}
+
+// RENDER RESULTS
+function renderResults(){
+  document.getElementById('rload').style.display='none';
+  if(!allResults.length){document.getElementById('rtbl').style.display='none';return;}
+  document.getElementById('rtbl').style.display='table';
+  document.getElementById('rbody').innerHTML=allResults.map(r=>`<tr>
+    <td>${r.date||'--'}</td><td><span class="nb2">${p2(r.number)}</span></td>
+    <td>${r.numberWord||gW(r.number)}</td><td>${fmtT(r.time)}</td>
+    <td><button class="btn btn-gold btn-sm" onclick="openER('${r.id}')">✏️</button> <button class="btn btn-red btn-sm" onclick="delRes('${r.id}','results')">🗑</button></td>
+  </tr>`).join('');
+}
+
+function renderHarupResults(){
+  document.getElementById('rload').style.display='none';
+  if(!allHarupResults.length){document.getElementById('rhtbl').style.display='none';return;}
+  document.getElementById('rhtbl').style.display='table';
+  document.getElementById('rhbody').innerHTML=allHarupResults.map(r=>`<tr>
+    <td>${r.date||'--'}</td><td><span class="hb2">H${r.harup}</span></td>
+    <td>${r.harupWord||gHW(r.harup)}</td><td>${fmtT(r.time)}</td>
+    <td><button class="btn btn-blue btn-sm" onclick="openERH('${r.id}')">✏️</button> <button class="btn btn-red btn-sm" onclick="delRes('${r.id}','harup_results')">🗑</button></td>
+  </tr>`).join('');
+}
+
+function renderRecent(){
+  const el=document.getElementById('rrecent');if(!el)return;
+  el.innerHTML=allResults.slice(0,6).map(r=>`<div class="brow">
+    <span style="font-size:11px">${r.date}</span>
+    <span class="nb2" style="font-size:12px">${p2(r.number)}</span>
+    <span style="font-size:10px;color:var(--text3)">${fmtT(r.time)}</span>
+    <div><button class="btn btn-gold btn-sm" onclick="openER('${r.id}')">✏️</button> <button class="btn btn-red btn-sm" onclick="delRes('${r.id}','results')">🗑</button></div>
+  </div>`).join('');
+}
+
+function renderRecentH(){
+  const el=document.getElementById('rrecenth');if(!el)return;
+  el.innerHTML=allHarupResults.slice(0,6).map(r=>`<div class="brow">
+    <span style="font-size:11px">${r.date}</span>
+    <span class="hb2" style="font-size:12px">H${r.harup}</span>
+    <span style="font-size:10px;color:#5a7a9a">${fmtT(r.time)}</span>
+    <div><button class="btn btn-blue btn-sm" onclick="openERH('${r.id}')">✏️</button> <button class="btn btn-red btn-sm" onclick="delRes('${r.id}','harup_results')">🗑</button></div>
+  </div>`).join('');
+}
+
+function openER(id){const r=allResults.find(x=>x.id===id);if(!r)return;document.getElementById('erid').value=id;document.getElementById('ern').value=r.number;document.getElementById('erd').value=r.date;openM('mer');}
+async function saveEditRes(){
+  const id=document.getElementById('erid').value,n=parseInt(document.getElementById('ern').value),d=document.getElementById('erd').value;
+  if(!id||isNaN(n)||!d){toast('Fill all','e');return;}
+  try{await DB.collection('results').doc(id).update({number:n,numberWord:gW(n),date:d});toast('Updated!','s');closeM('mer');}catch(e){toast('Error: '+e.message,'e');}
+}
+
+function openERH(id){const r=allHarupResults.find(x=>x.id===id);if(!r)return;document.getElementById('erhid').value=id;document.getElementById('erhn').value=r.harup;document.getElementById('erhd').value=r.date;openM('merh');}
+async function saveEditHarupRes(){
+  const id=document.getElementById('erhid').value,h=parseInt(document.getElementById('erhn').value),d=document.getElementById('erhd').value;
+  if(!id||isNaN(h)||!d){toast('Fill all','e');return;}
+  try{await DB.collection('harup_results').doc(id).update({harup:h,harupWord:gHW(h),date:d});toast('Updated!','s');closeM('merh');}catch(e){toast('Error: '+e.message,'e');}
+}
+
+async function delRes(id,col){
+  if(!confirm('Delete this result?'))return;
+  await DB.collection(col).doc(id).delete();toast('Deleted','s');
+}
+
+// SCHEDULE
+async function schedNum(){
+  const n=parseInt(document.getElementById('scn').value),d=document.getElementById('scd').value,t=document.getElementById('sct').value;
+  if(isNaN(n)||n<0||n>99||!d||!t){toast('Fill all fields','e');return;}
+  const pts=d.split('-');
+  await DB.collection('schedule').add({type:'number',number:n,date:`${pts[2]}-${pts[1]}-${pts[0]}`,time:t,status:'pending',timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+  toast('Number scheduled!','s');document.getElementById('scn').value='';startSchedCheck();
+}
+
+async function schedHarup(){
+  const h=parseInt(document.getElementById('sch').value),d=document.getElementById('schd').value,t=document.getElementById('scht').value;
+  if(isNaN(h)||h<0||h>9||!d||!t){toast('Fill all fields','e');return;}
+  const pts=d.split('-');
+  await DB.collection('schedule').add({type:'harup',harup:h,date:`${pts[2]}-${pts[1]}-${pts[0]}`,time:t,status:'pending',timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+  toast('Harup scheduled!','s');document.getElementById('sch').value='';startSchedCheck();
+}
+
+function loadSchedules(){
+  DB.collection('schedule').where('status','==','pending').orderBy('timestamp').onSnapshot(snap=>{
+    const el=document.getElementById('sclist');
+    if(snap.empty){el.innerHTML='<div class="empty-st"><div class="et">No schedules</div></div>';return;}
+    el.innerHTML=snap.docs.map(doc=>{
+      const s=doc.data();
+      const badge=s.type==='harup'?`<span class="hb2">H${s.harup}</span>`:`<span class="nb2" style="font-size:12px">${p2(s.number)}</span>`;
+      return`<div class="brow">${badge}<span style="font-size:12px">${s.date} at ${s.time}</span><span class="bdg ${s.type==='harup'?'bdg-b':'bdg-gold'}">${s.type}</span><button class="btn btn-red btn-sm" onclick="if(confirm('Cancel?'))DB.collection('schedule').doc('${doc.id}').delete()">🗑</button></div>`;
+    }).join('');
+  });
+  startSchedCheck();
+}
+
+function startSchedCheck(){
+  if(schedT)clearInterval(schedT);
+  schedT=setInterval(async()=>{
+    const now=getNow(),snap=await DB.collection('schedule').where('status','==','pending').get();
+    snap.docs.forEach(async doc=>{
+      const s=doc.data(),pts=s.date.split('-');
+      const target=new Date(`${pts[2]}-${pts[1]}-${pts[0]}T${s.time}`);
+      if(now>=target){
+        if(s.type==='harup'){
+          await DB.collection('harup_results').add({harup:s.harup,harupWord:gHW(s.harup),date:s.date,time:s.time,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+          toast('Auto-opened Harup: '+s.harup,'s');
+        } else {
+          await DB.collection('results').add({number:s.number,numberWord:gW(s.number),date:s.date,time:s.time,timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+          toast('Auto-opened Number: '+s.number,'s');
+        }
+        await doc.ref.update({status:'completed'});
+      }
+    });
+  },30000);
+}
+
+// BETS
+function filterBets(){renderBets();}
+function renderBets(){
+  updateBetStats();
+  const qA=(document.getElementById('bfag')?.value||'').toLowerCase();
+  const qC=(document.getElementById('bfcu')?.value||'').toLowerCase();
+  const qN=(document.getElementById('bfnu')?.value||'').trim();
+  const qD=(document.getElementById('bfda')?.value||'').trim();
+  const qT=document.getElementById('bfty')?.value||'';
+  let b=[...allBets];
+  if(qA)b=b.filter(x=>(x.agentName||'').toLowerCase().includes(qA));
+  if(qC)b=b.filter(x=>(x.customerName||'').toLowerCase().includes(qC));
+  if(qD)b=b.filter(x=>(x.date||'').includes(qD));
+  if(qT)b=b.filter(x=>x.type===qT);
+  if(qN)b=b.filter(x=>(x.type==='number'&&String(x.number)===qN)||(x.type==='harup'&&String(x.harup)===qN));
+  document.getElementById('bload').style.display='none';
+  document.getElementById('bcnt').textContent=b.length;
+  const tbl=document.getElementById('btbl'),emp=document.getElementById('bempty');
+  if(!b.length){tbl.style.display='none';emp.style.display='flex';return;}
+  emp.style.display='none';tbl.style.display='table';
+  document.getElementById('bbody').innerHTML=b.map(x=>`<tr>
+    <td style="font-size:11px"><b>${x.agentName||'--'}</b><br><span style="color:#888">${x.agentMobile||''}</span></td>
+    <td style="color:var(--gold);font-weight:600">${x.customerName||'Guest'}</td>
+    <td><span class="${x.type==='number'?'bdg bdg-gold':'bdg bdg-b'}">${x.type}</span></td>
+    <td>${x.type==='number'?`<span class="nb2" style="font-size:12px">Num: ${p2(x.number??0)}</span>`:`<span class="hb2">Harup: ${x.harup??'?'}</span>`}</td>
+    <td style="color:var(--gold);font-weight:700">${fmtINR(x.amount)}</td>
+    <td style="color:#68d391">${fmtINR(x.userWin??((x.type==='number'?(x.amount||0)*90:(x.amount||0)*9)))}</td>
+    <td style="color:#fc8181">${fmtINR(x.commission)}</td>
+    <td style="font-size:11px">${x.date||'--'}</td>
+    <td style="font-size:11px;color:#888">${x.time||'--'}</td>
+  </tr>`).join('');
+}
+
+// RISK
+function loadRisk(){
+  const today=getToday(),tb=allBets.filter(b=>b.date===today);
+  let ns=Array.from({length:100},(_,i)=>({num:i,amount:0,commission:0,payout:0,count:0,agents:new Set()}));
+  let hs=Array.from({length:10},(_,i)=>({harup:i,amount:0,commission:0,payout:0,count:0,agents:new Set()}));
+  tb.forEach(b=>{
+    const amt=parseFloat(b.amount||0),comm=parseFloat(b.commission||0);
+    if(b.type==='number'){const n=parseInt(b.number);if(!isNaN(n)&&n>=0&&n<=99){ns[n].amount+=amt;ns[n].commission+=comm;ns[n].count++;ns[n].payout+=(b.userWin??(amt*90));ns[n].agents.add(b.agentName||'?');}}
+    else if(b.type==='harup'){const h=parseInt(b.harup);if(!isNaN(h)&&h>=0&&h<=9){hs[h].amount+=amt;hs[h].commission+=comm;hs[h].count++;hs[h].payout+=(b.userWin??(amt*9));hs[h].agents.add(b.agentName||'?');}}
+  });
+  const actN=ns.filter(x=>x.amount>0).sort((a,b)=>a.payout-b.payout);
+  const actH=hs.filter(x=>x.amount>0).sort((a,b)=>a.payout-b.payout);
+  const zeroN=ns.filter(x=>x.amount===0);const zeroH=hs.filter(x=>x.amount===0);
+  const maxNP=actN.length?actN[actN.length-1].payout:0;const maxHP=actH.length?actH[actH.length-1].payout:0;
+  function rC(p,max){return p<=max*.33?'rbest':p<=max*.66?'rmid':'rhigh';}
+  function rCol(c){return c==='rbest'?'#68d391':c==='rmid'?'#f0b429':'#fc8181';}
+  function rBg(c){return c==='rbest'?'background:#1a4a2a;color:#68d391':c==='rmid'?'background:#4a3a0a;color:#f0b429':'background:#4a1a1a;color:#fc8181';}
+  function rowN(arr,max){
+    if(!arr.length)return'<div class="empty-st"><div class="et">No number bets today</div></div>';
+    return arr.map((x,i)=>{const c=rC(x.payout,max),col=rCol(c),bg=rBg(c),ags=[...x.agents].join(', ');return`<div class="rrow ${c}">
+      <div class="rnb" style="${bg}">${p2(x.num)}</div>
+      <div style="flex:1"><div style="font-size:11px;color:var(--text2)">Amount: <b style="color:${col}">${fmtINR(x.amount)}</b> | ${x.count} bets | Comm: ${fmtINR(x.commission)}</div><div style="font-size:10px;color:#666">Agents: ${ags}</div></div>
+      <div style="text-align:right;min-width:85px"><div style="font-size:9px;color:#666">Pay If Wins</div><div style="font-size:14px;font-weight:700;color:${col}">${fmtINR(x.payout)}</div>${i===0?'<div style="font-size:9px;color:#68d391">🥇 Safest</div>':''}</div>
+    </div>`;}).join('');
+  }
+  function rowH(arr,max){
+    if(!arr.length)return'<div class="empty-st"><div class="et">No harup bets today</div></div>';
+    return arr.map((x,i)=>{const c=rC(x.payout,max),col=rCol(c),bg=rBg(c),ags=[...x.agents].join(', ');return`<div class="rrow ${c}">
+      <div class="rnb" style="${bg};font-size:13px">H${x.harup}</div>
+      <div style="flex:1"><div style="font-size:11px;color:var(--text2)">Amount: <b style="color:${col}">${fmtINR(x.amount)}</b> | ${x.count} bets | Comm: ${fmtINR(x.commission)}</div><div style="font-size:10px;color:#666">Agents: ${ags}</div></div>
+      <div style="text-align:right;min-width:85px"><div style="font-size:9px;color:#666">Pay If Wins</div><div style="font-size:14px;font-weight:700;color:${col}">${fmtINR(x.payout)}</div>${i===0?'<div style="font-size:9px;color:#68d391">🥇 Safest</div>':''}</div>
+    </div>`;}).join('');
+  }
+  document.getElementById('ranums').innerHTML=rowN(actN,maxNP);
+  document.getElementById('raharups').innerHTML=rowH(actH,maxHP);
+  const zNS='background:#0d1a0d;border:1px solid #1a4a2a;color:#68d391;font-family:Orbitron,monospace;font-size:11px;font-weight:700;padding:3px 7px;border-radius:5px';
+  const zHS='background:#0d1220;border:1px solid #1a2a4a;color:#63b3ed;font-family:Orbitron,monospace;font-size:11px;font-weight:700;padding:3px 7px;border-radius:5px';
+  document.getElementById('rzeronums').innerHTML=zeroN.length?zeroN.map(x=>`<span style="${zNS}">${p2(x.num)}</span>`).join(''):'<span style="font-size:11px;color:#555">All numbers have bets!</span>';
+  document.getElementById('rzeroh').innerHTML=zeroH.length?zeroH.map(x=>`<span style="${zHS}">H${x.harup}</span>`).join(''):'<span style="font-size:11px;color:#555">All harups have bets!</span>';
+  const tA=tb.reduce((s,b)=>s+(parseFloat(b.amount)||0),0),tC=tb.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const maxP=Math.max(...actN.map(x=>x.payout),...actH.map(x=>x.payout),0);
+  document.getElementById('rtbt').textContent=tb.length;document.getElementById('rtam').textContent=fmtINR(tA);
+  document.getElementById('rtcm').textContent=fmtINR(tC);document.getElementById('rtmx').textContent=fmtINR(maxP);
+  document.getElementById('rtotals').style.display='block';
+}
+
+// AGENT REPORT
+function fillARSelect(){const sel=document.getElementById('arsel');if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">-- Select Agent --</option>'+allAgents.map(a=>`<option value="${a.id}">${a.name||'?'} (${a.mobile||'--'})</option>`).join('');if(cur)sel.value=cur;}
+function toTS(s){if(!s)return'';const p=s.split('-');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:s;}
+function loadAR(){
+  const agId=document.getElementById('arsel').value,from=document.getElementById('arfrom').value.trim(),to=document.getElementById('arto').value.trim();
+  const ld=document.getElementById('arload'),tbl=document.getElementById('artbl');
+  if(!agId){ld.innerHTML='<div class="empty-st"><div class="ei">👤</div><div class="et">Select agent</div></div>';tbl.style.display='none';document.getElementById('arsumm').style.display='none';return;}
+  let bets=allBets.filter(b=>b.agentId===agId);
+  if(from)bets=bets.filter(b=>toTS(b.date)>=toTS(from));
+  if(to)bets=bets.filter(b=>toTS(b.date)<=toTS(to));
+  document.getElementById('arsumm').style.display='grid';
+  document.getElementById('arbt').textContent=bets.length;
+  document.getElementById('aram').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.amount)||0),0));
+  document.getElementById('arcm').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.commission)||0),0));
+  document.getElementById('arwn').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.userWin)||0),0));
+  if(!bets.length){ld.innerHTML='<div class="empty-st"><div class="ei">🎲</div><div class="et">No bets in range</div></div>';tbl.style.display='none';return;}
+  ld.style.display='none';tbl.style.display='table';
+  document.getElementById('arbody').innerHTML=bets.map(b=>`<tr>
+    <td>${b.date||'--'}</td><td style="color:var(--gold)">${b.customerName||'Guest'}</td>
+    <td><span class="${b.type==='number'?'bdg bdg-gold':'bdg bdg-b'}">${b.type}</span></td>
+    <td>${b.type==='number'?`<span class="nb2" style="font-size:11px">${p2(b.number??0)}</span>`:`<span class="hb2">H${b.harup}</span>`}</td>
+    <td style="color:var(--gold);font-weight:600">${fmtINR(b.amount)}</td>
+    <td style="color:#68d391">${fmtINR(b.userWin??(b.type==='number'?(b.amount||0)*90:(b.amount||0)*9))}</td>
+    <td style="color:#fc8181">${fmtINR(b.commission)}</td>
+    <td style="font-size:10px;color:#888">${b.time||'--'}</td>
+  </tr>`).join('');
+}
+
+// REPORTS
+function genRpt(type){
+  const now=new Date();let fl=[...allBets],title='';
+  if(type==='daily'){fl=allBets.filter(b=>b.date===getToday());title='Daily — '+getToday();}
+  else if(type==='weekly'){const wk=new Date(now);wk.setDate(wk.getDate()-7);fl=allBets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=wk);title='Weekly (7d)';}
+  else{const mo=new Date(now);mo.setDate(mo.getDate()-30);fl=allBets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=mo);title='Monthly (30d)';}
+  const tA=fl.reduce((s,b)=>s+(parseFloat(b.amount)||0),0),tC=fl.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  document.getElementById('rptout').innerHTML=`
+    <div class="card" style="margin-bottom:10px">
+      <div class="ctitle">📈 ${title}</div>
+      <div class="g3" style="margin-top:10px">
+        <div class="sc"><div class="sv">${fl.length}</div><div class="sl">Bets</div></div>
+        <div class="sc"><div class="sv" style="font-size:15px">${fmtINR(tA)}</div><div class="sl">Amount</div></div>
+        <div class="sc"><div class="sv" style="font-size:15px;color:#fc8181">${fmtINR(tC)}</div><div class="sl">Commission</div></div>
+      </div>
+      <button class="btn btn-gold btn-sm" style="margin-top:10px" onclick='exportCSV(${JSON.stringify(fl.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,Commission:b.commission})))}, "${type}_report")'>⬇ Export CSV</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden"><div style="overflow-x:auto">
+      <table class="tbl" style="min-width:560px"><thead><tr><th>Date</th><th>Agent</th><th>Customer</th><th>Bet</th><th>Amount</th><th>Comm</th></tr></thead>
+      <tbody>${fl.slice(0,60).map(b=>`<tr><td>${b.date||'--'}</td><td>${b.agentName||'--'}</td><td>${b.customerName||'Guest'}</td><td>${b.type==='number'?`N:${b.number}`:`H:${b.harup}`}</td><td style="color:var(--gold)">${fmtINR(b.amount)}</td><td style="color:#fc8181">${fmtINR(b.commission)}</td></tr>`).join('')}</tbody>
+      </table></div></div>`;
+  toast('Report ready!','s');
+}
+
+// AGENTS
+function filterAgents(){
+  const q=document.getElementById('agq').value.toLowerCase(),st=document.getElementById('agst').value;
+  renderAgents(allAgents.filter(a=>{
+    const m=(a.name||'').toLowerCase().includes(q)||(a.mobile||'').includes(q)||(a.aadhaar||'').replace(/\s/g,'').includes(q.replace(/\s/g,''));
+    return m&&(!st||(a.status||'active')===st);
+  }));
+}
+
+function renderAgents(list){
+  const el=document.getElementById('agrid');
+  if(!list.length){el.innerHTML='<div class="empty-st" style="grid-column:1/-1"><div class="ei">👥</div><div class="et">No agents found</div></div>';return;}
+  el.innerHTML=list.map(a=>{
+    const agB=allBets.filter(b=>b.agentId===a.id&&b.date===getToday());
+    const dA=agB.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+    const totalComm=allBets.filter(b=>b.agentId===a.id).reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+    const settled=allSettlements.filter(s=>s.agentId===a.id).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+    const pending=Math.max(0,totalComm-settled);
+    const photo=a.photoUrl?`<img src="${a.photoUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='👤'"/>`:'👤';
+    return`<div class="agcard">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+        <div class="agphoto">${photo}</div>
+        <div style="flex:1">
+          <div style="font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;color:var(--gold)">${a.name||'Unknown'}</div>
+          <div style="font-size:11px;color:var(--text2)">📞 ${a.mobile||'--'}</div>
+          ${a.aadhaar?`<div style="font-size:10px;color:var(--text3)">🪪 ${a.aadhaar}</div>`:''}
+        </div>
+        <span class="${(a.status||'active')==='active'?'bdg bdg-g':'bdg bdg-r'}">${a.status||'active'}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">📍 ${a.address||'No address'}</div>
+      <div style="display:flex;gap:5px;margin-bottom:8px">
+        <div style="flex:1;background:var(--bg2);border-radius:5px;padding:5px;text-align:center"><div style="font-size:9px;color:var(--text3)">Today</div><div style="font-size:13px;font-weight:700;color:var(--gold)">${agB.length} bets</div></div>
+        <div style="flex:1;background:var(--bg2);border-radius:5px;padding:5px;text-align:center"><div style="font-size:9px;color:var(--text3)">Today Amt</div><div style="font-size:12px;font-weight:700;color:var(--gold)">${fmtINR(dA)}</div></div>
+        <div style="flex:1;background:rgba(221,107,32,.1);border:1px solid rgba(221,107,32,.2);border-radius:5px;padding:5px;text-align:center"><div style="font-size:9px;color:var(--text3)">Pending Comm</div><div style="font-size:12px;font-weight:700;color:#f6ad55">${fmtINR(pending)}</div></div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-gold btn-sm" onclick="viewAP('${a.id}')">👁 Profile</button>
+        <button class="btn btn-blue btn-sm" onclick="editAgent('${a.id}')">✏️ Edit</button>
+        <button class="btn btn-gray btn-sm" onclick="tgBlock('${a.id}','${a.status||'active'}')">${(a.status||'active')==='blocked'?'🔓 Unblock':'🔒 Block'}</button>
+        <button class="btn btn-gray btn-sm" onclick="rstPwd('${a.id}')">🔑 Reset</button>
+        <button class="btn btn-red btn-sm" onclick="delAgent('${a.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function viewAP(id){
+  const a=allAgents.find(x=>x.id===id);if(!a)return;
+  const agB=allBets.filter(b=>b.agentId===id);
+  const tA=agB.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+  const tC=agB.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const settled=allSettlements.filter(s=>s.agentId===id).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+  const photo=a.photoUrl?`<img src="${a.photoUrl}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--borderg)" onerror="this.outerHTML='<span style=font-size:40px>👤</span>'"/>`:'<span style="font-size:40px">👤</span>';
+  document.getElementById('apbody').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">${photo}<div>
+      <div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;color:var(--gold)">${a.name}</div>
+      <div style="font-size:12px;color:var(--text2)">📞 ${a.mobile||'--'}</div>
+      <span class="${(a.status||'active')==='active'?'bdg bdg-g':'bdg bdg-r'}">${a.status||'active'}</span>
+    </div></div>
+    <div class="g2" style="margin-bottom:12px;font-size:12px">
+      <div class="brow"><span>🪪 Aadhaar</span><strong>${a.aadhaar||'Not set'}</strong></div>
+      <div class="brow"><span>📍 Address</span><strong>${a.address||'Not set'}</strong></div>
+    </div>
+    <div class="g3" style="margin-bottom:12px">
+      <div class="sc"><div class="sv">${agB.length}</div><div class="sl">All Bets</div></div>
+      <div class="sc"><div class="sv" style="font-size:14px">${fmtINR(tA)}</div><div class="sl">Total Amt</div></div>
+      <div class="sc"><div class="sv" style="font-size:14px;color:#68d391">${fmtINR(tC)}</div><div class="sl">Commission</div></div>
+    </div>
+    <div class="brow" style="background:rgba(221,107,32,.08);border:1px solid rgba(221,107,32,.25)"><span>Pending Comm</span><strong style="color:#f6ad55;font-size:16px">${fmtINR(Math.max(0,tC-settled))}</strong></div>
+    <div class="brow"><span>Comm Settled</span><strong style="color:#68d391">${fmtINR(settled)}</strong></div>`;
+  openM('map');
+}
+
+function resetAF(){
+  ['ageid','agname','agmob','agpass','agaadh','agaddr'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('agstat').value='active';
+  document.getElementById('agtitle').textContent='Create New Agent';
+  document.getElementById('agphprev').style.display='none';
+  document.getElementById('agphoto').value='';
+}
+
+function prevPhoto(){
+  const f=document.getElementById('agphoto').files[0];if(!f)return;
+  // Check size (max 800KB for Firestore)
+  if(f.size>800*1024){toast('Photo too large! Max 800KB','e');return;}
+  const r=new FileReader();
+  r.onload=e=>{const img=document.getElementById('agphprev');img.src=e.target.result;img.style.display='block';};
+  r.readAsDataURL(f);
+}
+
+async function saveAgent(){
+  const id=document.getElementById('ageid').value;
+  const d={
+    name:document.getElementById('agname').value.trim(),
+    mobile:document.getElementById('agmob').value.trim(),
+    password:document.getElementById('agpass').value.trim(),
+    aadhaar:document.getElementById('agaadh').value.trim(),
+    address:document.getElementById('agaddr').value.trim(),
+    status:document.getElementById('agstat').value
+  };
+  if(!d.name||!d.mobile||!d.password){toast('Name, Mobile & Password required','e');return;}
+  const f=document.getElementById('agphoto').files[0];
+  if(f){
+    if(f.size>800*1024){toast('Photo too large! Max 800KB','e');return;}
+    const r=new FileReader();
+    r.onload=async e=>{d.photoUrl=e.target.result;await wA(id,d);};
+    r.readAsDataURL(f);
+  } else await wA(id,d);
+}
+
+async function wA(id,d){
+  try{
+    if(id)await DB.collection('agents').doc(id).update(d);
+    else await DB.collection('agents').add({...d,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    closeM('mag');resetAF();toast('Agent saved!','s');
+  }catch(e){toast('Error: '+e.message,'e');}
+}
+
+function editAgent(id){
+  const a=allAgents.find(x=>x.id===id);if(!a)return;
+  document.getElementById('ageid').value=id;document.getElementById('agtitle').textContent='Edit Agent';
+  document.getElementById('agname').value=a.name||'';document.getElementById('agmob').value=a.mobile||'';
+  document.getElementById('agpass').value=a.password||'';document.getElementById('agaadh').value=a.aadhaar||'';
+  document.getElementById('agaddr').value=a.address||'';document.getElementById('agstat').value=a.status||'active';
+  if(a.photoUrl){document.getElementById('agphprev').src=a.photoUrl;document.getElementById('agphprev').style.display='block';}
+  openM('mag');
+}
+
+async function tgBlock(id,s){await DB.collection('agents').doc(id).update({status:s==='blocked'?'active':'blocked'});toast('Status updated','s');}
+async function rstPwd(id){const p=genPwd();if(!confirm(`Reset password to: ${p}?`))return;await DB.collection('agents').doc(id).update({password:p});toast('New Pwd: '+p,'s');}
+async function delAgent(id){if(!confirm('Delete permanently?'))return;await DB.collection('agents').doc(id).delete();toast('Deleted','s');}
+
+// COMMISSION
+function fillCSSelect(){const sel=document.getElementById('cssel');if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">-- Select Agent --</option>'+allAgents.map(a=>`<option value="${a.id}">${a.name||'?'} (${a.mobile||'--'})</option>`).join('');if(cur)sel.value=cur;}
+function loadCommSummary(){
+  const agId=document.getElementById('cssel').value,period=document.getElementById('csperiod').value;
+  const el=document.getElementById('cssumm');if(!agId){el.style.display='none';return;}
+  let bets=allBets.filter(b=>b.agentId===agId);
+  if(period==='today')bets=bets.filter(b=>b.date===getToday());
+  else if(period==='week'){const wk=new Date(getNow());wk.setDate(wk.getDate()-7);bets=bets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=wk);}
+  else if(period==='month'){const mo=new Date(getNow());mo.setDate(mo.getDate()-30);bets=bets.filter(b=>b.timestamp?.toDate&&b.timestamp.toDate()>=mo);}
+  const tC=bets.reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const allTC=allBets.filter(b=>b.agentId===agId).reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+  const totalSettled=allSettlements.filter(s=>s.agentId===agId).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+  const pending=Math.max(0,allTC-totalSettled);
+  document.getElementById('csbt').textContent=bets.length;
+  document.getElementById('csam').textContent=fmtINR(bets.reduce((s,b)=>s+(parseFloat(b.amount)||0),0));
+  document.getElementById('cscm').textContent=fmtINR(tC);
+  document.getElementById('cssd').textContent=fmtINR(totalSettled);
+  document.getElementById('cspend').textContent=fmtINR(pending);
+  document.getElementById('csamount').value=pending>0?Math.round(pending):'';
+  el.style.display='block';
+}
+async function settleCommission(){
+  const agId=document.getElementById('cssel').value,amt=parseFloat(document.getElementById('csamount').value),notes=document.getElementById('csnotes').value.trim(),period=document.getElementById('csperiod').value;
+  if(!agId){toast('Select agent','e');return;}if(isNaN(amt)||amt<=0){toast('Enter valid amount','e');return;}
+  const ag=allAgents.find(a=>a.id===agId);
+  if(!confirm(`Settle ${fmtINR(amt)} for ${ag?.name}?`))return;
+  try{
+    await DB.collection('settlements').add({agentId:agId,agentName:ag?.name||'',amount:amt,period,notes,date:getToday(),timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    toast(`Settled ${fmtINR(amt)} for ${ag?.name}!`,'s');
+    document.getElementById('csamount').value='';document.getElementById('csnotes').value='';
+    loadCommSummary();loadCSHistory();loadAllCommSumm();
+  }catch(e){toast('Error: '+e.message,'e');}
+}
+function loadCSHistory(){
+  const el=document.getElementById('cshistory');
+  const agId=document.getElementById('cssel').value;
+  let s=[...allSettlements];if(agId)s=s.filter(x=>x.agentId===agId);
+  s.sort((a,b)=>(b.timestamp?.toMillis?.()??0)-(a.timestamp?.toMillis?.()??0));
+  if(!s.length){el.innerHTML='<div class="empty-st"><div class="et">No settlements</div></div>';return;}
+  el.innerHTML='<div style="max-height:360px;overflow-y:auto">'+s.map(x=>`<div class="brow" style="background:rgba(56,161,105,.05);border:1px solid rgba(56,161,105,.2);border-radius:var(--rs)">
+    <div><div style="font-size:12px;font-weight:600;color:var(--gold)">${x.agentName||'--'}</div><div style="font-size:10px;color:var(--text3)">${x.date} | ${x.period||'all'}${x.notes?' | '+x.notes:''}</div></div>
+    <strong style="color:#68d391">${fmtINR(x.amount)}</strong>
+  </div>`).join('')+'</div>';
+}
+function loadAllCommSumm(){
+  const el=document.getElementById('allcsumm');if(!allAgents.length){el.innerHTML='<div class="empty-st"><div class="et">No agents</div></div>';return;}
+  const rows=allAgents.map(a=>{
+    const tC=allBets.filter(b=>b.agentId===a.id).reduce((s,b)=>s+(parseFloat(b.commission)||0),0);
+    const settled=allSettlements.filter(s=>s.agentId===a.id).reduce((s,st)=>s+(parseFloat(st.amount)||0),0);
+    return{...a,tC,settled,pending:Math.max(0,tC-settled)};
+  }).sort((a,b)=>b.pending-a.pending);
+  el.innerHTML=`<div style="overflow-x:auto"><table class="tbl">
+    <thead><tr><th>Agent</th><th>Total Commission</th><th>Settled</th><th>Pending</th><th>Action</th></tr></thead>
+    <tbody>${rows.map(a=>`<tr>
+      <td><b>${a.name||'--'}</b><br><span style="font-size:10px;color:#888">${a.mobile||''}</span></td>
+      <td style="color:var(--gold)">${fmtINR(a.tC)}</td>
+      <td style="color:#68d391">${fmtINR(a.settled)}</td>
+      <td style="${a.pending>0?'color:#f6ad55;font-weight:700':'color:var(--text3)'}">${fmtINR(a.pending)}</td>
+      <td><button class="btn btn-orange btn-sm" onclick="quickSettle('${a.id}',${a.pending})">💸 Settle</button></td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+async function quickSettle(agId,pending){
+  if(pending<=0){toast('No pending commission','i');return;}
+  const ag=allAgents.find(a=>a.id===agId);
+  if(!confirm(`Settle full ${fmtINR(pending)} for ${ag?.name}?`))return;
+  try{
+    await DB.collection('settlements').add({agentId:agId,agentName:ag?.name||'',amount:pending,period:'all',notes:'Full settlement',date:getToday(),timestamp:firebase.firestore.FieldValue.serverTimestamp()});
+    toast(`Settled ${fmtINR(pending)} for ${ag?.name}!`,'s');loadAllCommSumm();
+  }catch(e){toast('Error: '+e.message,'e');}
+}
+
+// SETTINGS — Password saves to Firebase, NOT browser
+async function saveSettings(){
+  const r=parseInt(document.getElementById('srate').value);
+  if(!r||r<=0){toast('Invalid','e');return;}
+  await DB.collection('settings').doc('main').set({commissionRate:r},{merge:true});
+  cS.commissionRate=r;toast('Saved!','s');
+}
+async function changeAdminPwd(){
+  const p=document.getElementById('spass').value;
+  const p2=document.getElementById('spass2').value;
+  if(!p||!p2){toast('Fill both fields','e');return;}
+  if(p!==p2){toast('Passwords do not match','e');return;}
+  if(p.length<4){toast('Min 4 characters','e');return;}
+  // Save to Firebase Firestore — NOT localStorage or sessionStorage
+  await DB.collection('admins').doc(cA.id).update({password:p});
+  cA.password=p;
+  document.getElementById('spass').value='';document.getElementById('spass2').value='';
+  toast('✅ Password Firebase mein save ho gaya!','s');
+}
+
+// BACKUP
+function loadDBInfo(){
+  document.getElementById('bir').textContent=allResults.length;
+  document.getElementById('birh').textContent=allHarupResults.length;
+  document.getElementById('bib').textContent=allBets.length;
+  document.getElementById('bia').textContent=allAgents.length;
+  document.getElementById('bis').textContent=allSettlements.length;
+  DB.collection('settings').doc('main').get().then(s=>{if(s.exists&&s.data().lastBackup)document.getElementById('bil').textContent=new Date(s.data().lastBackup).toLocaleString('en-IN');});
+}
+function exportBetsCSV(){exportCSV(allBets.map(b=>({Date:b.date,Time:b.time,Agent:b.agentName,Mobile:b.agentMobile,Customer:b.customerName,Type:b.type,Number:b.number,Harup:b.harup,Amount:b.amount,Commission:b.commission,WinIfPass:b.userWin??(b.type==='number'?(b.amount||0)*90:(b.amount||0)*9)})),'bets');}
+async function exportFullJSON(){
+  const blob=new Blob([JSON.stringify({results:allResults,harup_results:allHarupResults,bets:allBets,agents:allAgents.map(a=>({...a,photoUrl:undefined})),settlements:allSettlements,at:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='updarbar_backup.json';a.click();
+  toast('Backup downloaded!','s');
+  await DB.collection('settings').doc('main').set({lastBackup:new Date().toISOString()},{merge:true});
+}
+</script>
+</body>
+</html>
